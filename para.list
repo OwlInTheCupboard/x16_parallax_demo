@@ -290,7 +290,7 @@ Current file: parallax.asm
 000810  1  00 00        default_irq_vector: .addr 0
 000812  1               VSYNC_BIT = $83 ;enable vsync, line IRQs and turning on the 8 bit of the line interupt
 000812  1  00           increment: .byte 0
-000813  1  04           scroll_ammount: .byte 4;this is the speed of the foreground.
+000813  1  10           scroll_ammount: .byte 16;this is the speed of the foreground.
 000814  1               TILESET_START = $F800
 000814  1               display_scale = 64
 000814  1  00           frame: .byte 0
@@ -304,10 +304,10 @@ Current file: parallax.asm
 00082D  1  80 90 A0 B0    .byte 128,144,160,176
 000831  1  C0 D0          .byte 192,208
 000833  1               increment_div:
-000833  1  FF 80 40 20    .byte 255,128,64,32
-000837  1  10 08 04 03    .byte 16,8,4,3
-00083B  1  02 01 01 01    .byte 2,1,1,1
-00083F  1  01 01          .byte 1,1
+000833  1  38 30 28 22    .byte 56,48,40,34
+000837  1  1C 16 12 0E    .byte 28,22,18,14
+00083B  1  0A 08 06 05    .byte 10,8,6,5
+00083F  1  04 04          .byte 4,4
 000841  1  00 00 00 00  scroll: .byte 0,0,0,0 ,0,0,0,0 ,0,0,0,0 ,0,0
 000845  1  00 00 00 00  
 000849  1  00 00 00 00  
@@ -333,9 +333,9 @@ Current file: parallax.asm
 000877  1  09 03          ora #$03
 000879  1  8D 36 9F       sta VERA_L1_tilebase
 00087C  1               
-00087C  1  20 21 09       jsr loadpallet
-00087F  1  20 55 09       jsr loadtileset
-000882  1  20 98 09       jsr fillbackground
+00087C  1  20 20 09       jsr loadpallet
+00087F  1  20 54 09       jsr loadtileset
+000882  1  20 97 09       jsr fillbackground
 000885  1               
 000885  1               
 000885  1  AD 14 03       lda IRQVec
@@ -343,7 +343,7 @@ Current file: parallax.asm
 00088B  1  AD 15 03       lda IRQVec+1
 00088E  1  8D 11 08       sta default_irq_vector+1
 000891  1               
-000891  1  A9 C2          lda #<update
+000891  1  A9 C1          lda #<update
 000893  1  8D 14 03       sta IRQVec
 000896  1  A9 09          lda #>update
 000898  1  8D 15 03       sta IRQVec+1
@@ -351,7 +351,7 @@ Current file: parallax.asm
 00089D  1  8D 26 9F       sta VERA_ien
 0008A0  1               
 0008A0  1  58             cli
-0008A1  1  4C BE 09       jmp main
+0008A1  1  4C BD 09       jmp main
 0008A4  1               
 0008A4  1               scroll_positions:
 0008A4  1                 ;rather than dividing I believe this is quicker to have a counter based
@@ -360,7 +360,7 @@ Current file: parallax.asm
 0008A4  1  A0 00          ldy #0
 0008A6  1                 @ratio_loop:
 0008A6  1  CC 13 08       cpy scroll_ammount
-0008A9  1  F0 4E          beq @done
+0008A9  1  F0 4D          beq @done
 0008AB  1  EE 4F 08         inc scroll_counter
 0008AE  1  EE 50 08         inc scroll_counter+1
 0008B1  1  EE 51 08         inc scroll_counter+2
@@ -378,624 +378,623 @@ Current file: parallax.asm
 0008D5  1  A2 00            ldx #0
 0008D7  1                   @increment_loop:
 0008D7  1  BD 33 08           lda increment_div,x
-0008DA  1  1A                 inc
-0008DB  1  DD 4F 08           cmp scroll_counter,x
-0008DE  1  D0 10              bne @next
-0008E0  1  FE 41 08           inc scroll,x
-0008E3  1  9E 4F 08           stz scroll_counter,x
-0008E6  1  A9 10              lda #16
-0008E8  1  DD 41 08           cmp scroll,x
-0008EB  1  D0 03              bne @next
-0008ED  1  9E 41 08           stz scroll,x
-0008F0  1                     @next:
-0008F0  1  E8                 inx
-0008F1  1  E0 0E              cpx #14
-0008F3  1  D0 E2              bne @increment_loop
-0008F5  1  C8               iny
-0008F6  1  4C A6 08         jmp @ratio_loop
-0008F9  1                 @done:
-0008F9  1  60             rts
-0008FA  1               
-0008FA  1               reset_screen_scroll:
-0008FA  1  9C 37 9F       stz VERA_L1_hscroll_l
-0008FD  1  60             rts
-0008FE  1               
-0008FE  1               warp_screen:
-0008FE  1  AE 12 08       ldx increment
-000901  1  BD 41 08       lda scroll,x
-000904  1  8D 37 9F       sta VERA_L1_hscroll_l
-000907  1  9C 38 9F       stz VERA_L1_hscroll_h
-00090A  1  EE 12 08       inc increment
-00090D  1  A9 0E          lda #14
-00090F  1  CD 12 08       cmp increment
-000912  1  D0 03          bne @done
-000914  1  9C 12 08       stz increment
-000917  1               @done:
-000917  1  AE 12 08       ldx increment
-00091A  1  BD 25 08       lda parallax_blocks,x
-00091D  1  8D 28 9F       sta VERA_irqline_l
-000920  1  60             rts
-000921  1               
-000921  1               loadpallet:
-000921  1  A9 00          lda #$00
-000923  1  8D 20 9F       sta VERA_addr_low
-000926  1  A9 FA          lda #$FA
-000928  1  8D 21 9F       sta VERA_addr_high
-00092B  1  A9 11          lda #$11
-00092D  1  8D 22 9F       sta VERA_addr_bank
-000930  1  A6 00          ldx 0
-000932  1               @loop:
-000932  1  BD EE 09       lda palette,x
-000935  1  8D 23 9F       sta VERA_data0
-000938  1  E8             inx
-000939  1  E0 40          cpx #64
-00093B  1  D0 F5          bne @loop
-00093D  1  60             rts
-00093E  1               
-00093E  1               divide: ;ZP_PRT_1 = dividend, ZP_PTR_2 = divisor, ZP_PTR_3 = remainder
-00093E  1                       ;result is stored in ZP_PRT_1
-00093E  1  64 24          stz ZP_PTR_3
-000940  1  A2 08          ldx #8
-000942  1               @loop:
-000942  1  06 00          asl ZP_PTR_1
-000944  1  26 24          rol ZP_PTR_3
-000946  1  A5 24          lda ZP_PTR_3
-000948  1  38             sec
-000949  1  E5 22          sbc ZP_PTR_2
-00094B  1  90 04          bcc @done
-00094D  1  85 24          sta ZP_PTR_3
-00094F  1  E6 00          inc ZP_PTR_1
-000951  1               @done:
-000951  1  CA             dex
-000952  1  D0 EE          bne @loop
-000954  1  60             rts
-000955  1               
-000955  1               loadtileset:
-000955  1  A9 10 8D 22    VERA_SET_ADDR TILESET_START, 1
-000959  1  9F A9 F8 8D  
-00095D  1  21 9F A9 00  
-000964  1  A9 2E 85 00    store_16_value ZP_PTR_1, tileset
-000968  1  A9 0A 85 01  
-00096C  1               @loop:
-00096C  1  B2 00          lda (ZP_PTR_1)
-00096E  1  8D 23 9F       sta VERA_data0
-000971  1  18 A5 00 69    add_16_value ZP_PTR_1, 1
-000975  1  01 85 00 A5  
-000979  1  01 69 00 85  
-00097E  1  A5 01 C9 11    compare_16_value ZP_PTR_1, (tileset + 1792), @loop
-000982  1  D0 E8 A5 00  
-000986  1  C9 2E D0 E2  
-00098A  1  60             rts
-00098B  1               
-00098B  1               inc_frame:
-00098B  1  EE 14 08       inc frame
-00098E  1  A9 3C          lda #60
-000990  1  CD 14 08       cmp frame
-000993  1  D0 02          bne @continue
-000995  1  A9 00          lda #0
-000997  1               @continue:
-000997  1  60             rts
-000998  1               
-000998  1               fillbackground:
-000998  1  A9 10          lda #$10
-00099A  1  8D 22 9F       sta VERA_addr_bank
-00099D  1  A0 00          ldy #0
-00099F  1                 @yloop:
-00099F  1  9C 20 9F         stz VERA_addr_low
-0009A2  1  98               tya
-0009A3  1  8D 21 9F         sta VERA_addr_high
-0009A6  1  A2 00            ldx #0
-0009A8  1                   @xloop:
-0009A8  1  B9 15 08           lda background_list,y
-0009AB  1  8D 23 9F           sta VERA_data0
-0009AE  1  A9 10              lda #$10
-0009B0  1  8D 23 9F           sta VERA_data0
-0009B3  1  E8                 inx
-0009B4  1  E0 18              cpx #24
-0009B6  1  D0 F0              bne @xloop
-0009B8  1  C8               iny
-0009B9  1  C0 0F            cpy #15
-0009BB  1  D0 E2            bne @yloop
-0009BD  1  60             rts
-0009BE  1               
-0009BE  1               main:
-0009BE  1  CB             wai
-0009BF  1  4C BE 09       jmp main
-0009C2  1               
-0009C2  1               update:
-0009C2  1  AD 27 9F       lda VERA_isr
-0009C5  1  29 01          and #$01
-0009C7  1  D0 0A          bne @frame_update
-0009C9  1  AD 27 9F       lda VERA_isr
-0009CC  1  29 02          and #$02
-0009CE  1  D0 0C          bne @line_update
-0009D0  1  4C EB 09       jmp @continue
-0009D3  1               @frame_update:
-0009D3  1  20 8B 09       jsr inc_frame
-0009D6  1  20 A4 08       jsr scroll_positions
-0009D9  1  20 FA 08       jsr reset_screen_scroll
-0009DC  1               @line_update:
-0009DC  1  20 FE 08       jsr warp_screen
-0009DF  1  AD 27 9F       lda VERA_isr
-0009E2  1  09 02          ora #$02
-0009E4  1  8D 27 9F       sta VERA_isr
-0009E7  1  7A             ply
-0009E8  1  FA             plx
-0009E9  1  68             pla
-0009EA  1  40             rti
-0009EB  1               @continue:
-0009EB  1  6C 10 08       jmp (default_irq_vector)
-0009EE  1               
-0009EE  1               palette:
-0009EE  1                 .include "palette.inc"
-0009EE  2               ;palette_1 - size is 64
-0009EE  2  00 00 23 02  .byte $00,$00,$23,$02,$23,$04,$33,$06
-0009F2  2  23 04 33 06  
-0009F6  2  53 08 72 0D  .byte $53,$08,$72,$0D,$A6,$0D,$C9,$0E
-0009FA  2  A6 0D C9 0E  
-0009FE  2  F3 0F E5 09  .byte $F3,$0F,$E5,$09,$B3,$06,$96,$03
-000A02  2  B3 06 96 03  
-000A06  2  62 04 42 05  .byte $62,$04,$42,$05,$78,$08,$66,$06
-000A0A  2  78 08 66 06  
-000A0E  2  55 05 48 07  .byte $55,$05,$48,$07,$33,$0A,$56,$0D
-000A12  2  33 0A 56 0D  
-000A16  2  7B 0D 94 08  .byte $7B,$0D,$94,$08,$33,$03,$63,$08
-000A1A  2  33 03 63 08  
-000A1E  2  37 03 68 03  .byte $37,$03,$68,$03,$6E,$05,$9F,$06
-000A22  2  6E 05 9F 06  
-000A26  2  CE 05 DF 0C  .byte $CE,$05,$DF,$0C,$FF,$0F,$AB,$09
-000A2A  2  FF 0F AB 09  
-000A2E  2               
-000A2E  1               tileset:
-000A2E  1                 .include "tileset.inc"
-000A2E  2               ;wall_tiles - size is 1792
-000A2E  2  88 88 88 88  .byte $88,$88,$88,$88,$88,$88,$88,$88
-000A32  2  88 88 88 88  
-000A36  2  88 88 88 88  .byte $88,$88,$88,$88,$88,$88,$88,$88
-000A3A  2  88 88 88 88  
-000A3E  2  88 88 88 88  .byte $88,$88,$88,$88,$88,$88,$88,$88
-000A42  2  88 88 88 88  
-000A46  2  88 88 88 88  .byte $88,$88,$88,$88,$88,$88,$88,$88
-000A4A  2  88 88 88 88  
-000A4E  2  88 88 88 88  .byte $88,$88,$88,$88,$88,$88,$88,$88
-000A52  2  88 88 88 88  
-000A56  2  88 88 88 88  .byte $88,$88,$88,$88,$88,$88,$88,$88
-000A5A  2  88 88 88 88  
-000A5E  2  88 88 88 88  .byte $88,$88,$88,$88,$88,$88,$88,$88
-000A62  2  88 88 88 88  
-000A66  2  88 88 88 88  .byte $88,$88,$88,$88,$88,$88,$88,$88
-000A6A  2  88 88 88 88  
-000A6E  2  88 88 88 88  .byte $88,$88,$88,$88,$88,$88,$88,$88
-000A72  2  88 88 88 88  
-000A76  2  88 88 88 88  .byte $88,$88,$88,$88,$88,$88,$88,$88
-000A7A  2  88 88 88 88  
-000A7E  2  88 88 88 88  .byte $88,$88,$88,$88,$88,$88,$88,$88
-000A82  2  88 88 88 88  
-000A86  2  88 88 88 88  .byte $88,$88,$88,$88,$88,$88,$88,$88
-000A8A  2  88 88 88 88  
-000A8E  2  88 88 88 88  .byte $88,$88,$88,$88,$88,$88,$88,$88
-000A92  2  88 88 88 88  
-000A96  2  88 88 88 88  .byte $88,$88,$88,$88,$88,$88,$88,$88
-000A9A  2  88 88 88 88  
-000A9E  2  88 88 88 88  .byte $88,$88,$88,$88,$88,$88,$88,$88
-000AA2  2  88 88 88 88  
-000AA6  2  88 88 88 88  .byte $88,$88,$88,$88,$88,$88,$88,$88
-000AAA  2  88 88 88 88  
-000AAE  2  88 88 88 88  .byte $88,$88,$88,$88,$88,$88,$88,$88
-000AB2  2  88 88 88 88  
-000AB6  2  88 88 88 88  .byte $88,$88,$88,$88,$88,$88,$88,$88
-000ABA  2  88 88 88 88  
-000ABE  2  88 88 88 88  .byte $88,$88,$88,$88,$88,$88,$88,$88
-000AC2  2  88 88 88 88  
-000AC6  2  88 88 88 88  .byte $88,$88,$88,$88,$88,$88,$88,$88
-000ACA  2  88 88 88 88  
-000ACE  2  88 88 88 88  .byte $88,$88,$88,$88,$88,$88,$88,$88
-000AD2  2  88 88 88 88  
-000AD6  2  88 88 88 88  .byte $88,$88,$88,$88,$88,$88,$88,$88
-000ADA  2  88 88 88 88  
-000ADE  2  88 88 88 88  .byte $88,$88,$88,$88,$88,$88,$88,$88
-000AE2  2  88 88 88 88  
-000AE6  2  88 88 88 88  .byte $88,$88,$88,$88,$88,$88,$88,$88
-000AEA  2  88 88 88 88  
-000AEE  2  98 98 98 88  .byte $98,$98,$98,$88,$98,$98,$98,$88
-000AF2  2  98 98 98 88  
-000AF6  2  88 88 88 88  .byte $88,$88,$88,$88,$88,$88,$88,$88
-000AFA  2  88 88 88 88  
-000AFE  2  98 98 98 98  .byte $98,$98,$98,$98,$98,$98,$98,$98
-000B02  2  98 98 98 98  
-000B06  2  88 88 88 88  .byte $88,$88,$88,$88,$88,$88,$88,$88
-000B0A  2  88 88 88 88  
-000B0E  2  98 98 98 98  .byte $98,$98,$98,$98,$98,$98,$98,$98
-000B12  2  98 98 98 98  
-000B16  2  89 88 89 88  .byte $89,$88,$89,$88,$89,$88,$89,$88
-000B1A  2  89 88 89 88  
-000B1E  2  98 98 98 98  .byte $98,$98,$98,$98,$98,$98,$98,$98
-000B22  2  98 98 98 98  
-000B26  2  88 89 88 89  .byte $88,$89,$88,$89,$88,$89,$88,$89
-000B2A  2  88 89 88 89  
-000B2E  2  98 98 98 98  .byte $98,$98,$98,$98,$98,$98,$98,$98
-000B32  2  98 98 98 98  
-000B36  2  89 89 89 89  .byte $89,$89,$89,$89,$89,$89,$89,$89
-000B3A  2  89 89 89 89  
-000B3E  2  98 99 98 98  .byte $98,$99,$98,$98,$98,$99,$98,$98
-000B42  2  98 99 98 98  
-000B46  2  89 89 89 89  .byte $89,$89,$89,$89,$89,$89,$89,$89
-000B4A  2  89 89 89 89  
-000B4E  2  99 98 99 99  .byte $99,$98,$99,$99,$99,$98,$99,$99
-000B52  2  99 98 99 99  
-000B56  2  89 89 89 89  .byte $89,$89,$89,$89,$89,$89,$89,$89
-000B5A  2  89 89 89 89  
-000B5E  2  99 99 99 99  .byte $99,$99,$99,$99,$99,$99,$99,$99
-000B62  2  99 99 99 99  
-000B66  2  89 89 89 89  .byte $89,$89,$89,$89,$89,$89,$89,$89
-000B6A  2  89 89 89 89  
-000B6E  2  99 99 99 99  .byte $99,$99,$99,$99,$99,$99,$99,$99
-000B72  2  99 99 99 99  
-000B76  2  99 89 99 89  .byte $99,$89,$99,$89,$99,$89,$99,$89
-000B7A  2  99 89 99 89  
-000B7E  2  99 99 99 99  .byte $99,$99,$99,$99,$99,$99,$99,$99
-000B82  2  99 99 99 99  
-000B86  2  99 99 89 99  .byte $99,$99,$89,$99,$99,$99,$89,$99
-000B8A  2  99 99 89 99  
-000B8E  2  99 99 99 99  .byte $99,$99,$99,$99,$99,$99,$99,$99
-000B92  2  99 99 99 99  
-000B96  2  99 99 99 99  .byte $99,$99,$99,$99,$99,$99,$99,$99
-000B9A  2  99 99 99 99  
-000B9E  2  99 99 99 99  .byte $99,$99,$99,$99,$99,$99,$99,$99
-000BA2  2  99 99 99 99  
-000BA6  2  99 99 99 99  .byte $99,$99,$99,$99,$99,$99,$99,$99
-000BAA  2  99 99 99 99  
-000BAE  2  99 99 99 99  .byte $99,$99,$99,$99,$99,$99,$99,$99
-000BB2  2  99 99 99 99  
-000BB6  2  99 99 99 99  .byte $99,$99,$99,$99,$99,$99,$99,$99
-000BBA  2  99 99 99 99  
-000BBE  2  99 99 99 99  .byte $99,$99,$99,$99,$99,$99,$99,$99
-000BC2  2  99 99 99 99  
-000BC6  2  99 99 99 99  .byte $99,$99,$99,$99,$99,$99,$99,$99
-000BCA  2  99 99 99 99  
-000BCE  2  99 99 99 99  .byte $99,$99,$99,$99,$99,$99,$99,$99
-000BD2  2  99 99 99 99  
-000BD6  2  99 99 99 99  .byte $99,$99,$99,$99,$99,$99,$99,$99
-000BDA  2  99 99 99 99  
-000BDE  2  99 99 99 99  .byte $99,$99,$99,$99,$99,$99,$99,$99
-000BE2  2  99 99 99 99  
-000BE6  2  99 99 99 99  .byte $99,$99,$99,$99,$99,$99,$99,$99
-000BEA  2  99 99 99 99  
-000BEE  2  A9 A9 A9 99  .byte $A9,$A9,$A9,$99,$A9,$A9,$A9,$99
-000BF2  2  A9 A9 A9 99  
-000BF6  2  99 99 99 99  .byte $99,$99,$99,$99,$99,$99,$99,$99
-000BFA  2  99 99 99 99  
-000BFE  2  A9 A9 A9 A9  .byte $A9,$A9,$A9,$A9,$A9,$A9,$A9,$A9
-000C02  2  A9 A9 A9 A9  
-000C06  2  99 99 99 99  .byte $99,$99,$99,$99,$99,$99,$99,$99
-000C0A  2  99 99 99 99  
-000C0E  2  A9 A9 A9 A9  .byte $A9,$A9,$A9,$A9,$A9,$A9,$A9,$A9
-000C12  2  A9 A9 A9 A9  
-000C16  2  9A 99 9A 99  .byte $9A,$99,$9A,$99,$9A,$99,$9A,$99
-000C1A  2  9A 99 9A 99  
-000C1E  2  A9 A9 A9 A9  .byte $A9,$A9,$A9,$A9,$A9,$A9,$A9,$A9
-000C22  2  A9 A9 A9 A9  
-000C26  2  99 9A 99 9A  .byte $99,$9A,$99,$9A,$99,$9A,$99,$9A
-000C2A  2  99 9A 99 9A  
-000C2E  2  A9 A9 A9 A9  .byte $A9,$A9,$A9,$A9,$A9,$A9,$A9,$A9
-000C32  2  A9 A9 A9 A9  
-000C36  2  9A 9A 9A 9A  .byte $9A,$9A,$9A,$9A,$9A,$9A,$9A,$9A
-000C3A  2  9A 9A 9A 9A  
-000C3E  2  A9 AA A9 A9  .byte $A9,$AA,$A9,$A9,$A9,$AA,$A9,$A9
-000C42  2  A9 AA A9 A9  
-000C46  2  9A 9A 9A 9A  .byte $9A,$9A,$9A,$9A,$9A,$9A,$9A,$9A
-000C4A  2  9A 9A 9A 9A  
-000C4E  2  AA A9 AA AA  .byte $AA,$A9,$AA,$AA,$AA,$A9,$AA,$AA
-000C52  2  AA A9 AA AA  
-000C56  2  9A 9A 9A 9A  .byte $9A,$9A,$9A,$9A,$9A,$9A,$9A,$9A
-000C5A  2  9A 9A 9A 9A  
-000C5E  2  AA AA AA AA  .byte $AA,$AA,$AA,$AA,$AA,$AA,$AA,$AA
-000C62  2  AA AA AA AA  
-000C66  2  9A 9A 9A 9A  .byte $9A,$9A,$9A,$9A,$9A,$9A,$9A,$9A
-000C6A  2  9A 9A 9A 9A  
-000C6E  2  AA AA AA AA  .byte $AA,$AA,$AA,$AA,$AA,$AA,$AA,$AA
-000C72  2  AA AA AA AA  
-000C76  2  AA 9A AA 9A  .byte $AA,$9A,$AA,$9A,$AA,$9A,$AA,$9A
-000C7A  2  AA 9A AA 9A  
-000C7E  2  AA AA AA AA  .byte $AA,$AA,$AA,$AA,$AA,$AA,$AA,$AA
-000C82  2  AA AA AA AA  
-000C86  2  AA AA 9A AA  .byte $AA,$AA,$9A,$AA,$AA,$AA,$9A,$AA
-000C8A  2  AA AA 9A AA  
-000C8E  2  AA AA AA AA  .byte $AA,$AA,$AA,$AA,$AA,$AA,$AA,$AA
-000C92  2  AA AA AA AA  
-000C96  2  AA AA AA AA  .byte $AA,$AA,$AA,$AA,$AA,$AA,$AA,$AA
-000C9A  2  AA AA AA AA  
-000C9E  2  AA AA AA AA  .byte $AA,$AA,$AA,$AA,$AA,$AA,$AA,$AA
-000CA2  2  AA AA AA AA  
-000CA6  2  AA AA AA AA  .byte $AA,$AA,$AA,$AA,$AA,$AA,$AA,$AA
-000CAA  2  AA AA AA AA  
-000CAE  2  AA AA AA AA  .byte $AA,$AA,$AA,$AA,$AA,$AA,$AA,$AA
-000CB2  2  AA AA AA AA  
-000CB6  2  AA AA AA AA  .byte $AA,$AA,$AA,$AA,$AA,$AA,$AA,$AA
-000CBA  2  AA AA AA AA  
-000CBE  2  AA AA AA AA  .byte $AA,$AA,$AA,$AA,$AA,$AA,$AA,$AA
-000CC2  2  AA AA AA AA  
-000CC6  2  AA AA AA AA  .byte $AA,$AA,$AA,$AA,$AA,$AA,$AA,$AA
-000CCA  2  AA AA AA AA  
-000CCE  2  AA AA AA AA  .byte $AA,$AA,$AA,$AA,$AA,$AA,$AA,$AA
-000CD2  2  AA AA AA AA  
-000CD6  2  AA AA AA AA  .byte $AA,$AA,$AA,$AA,$AA,$AA,$AA,$AA
-000CDA  2  AA AA AA AA  
-000CDE  2  AA AA AA AA  .byte $AA,$AA,$AA,$AA,$AA,$AA,$AA,$AA
-000CE2  2  AA AA AA AA  
-000CE6  2  AA AA AA AA  .byte $AA,$AA,$AA,$AA,$AA,$AA,$AA,$AA
-000CEA  2  AA AA AA AA  
-000CEE  2  BA BA BA AA  .byte $BA,$BA,$BA,$AA,$BA,$BA,$BA,$AA
-000CF2  2  BA BA BA AA  
-000CF6  2  AA AA AA AA  .byte $AA,$AA,$AA,$AA,$AA,$AA,$AA,$AA
-000CFA  2  AA AA AA AA  
-000CFE  2  BA BA BA BA  .byte $BA,$BA,$BA,$BA,$BA,$BA,$BA,$BA
-000D02  2  BA BA BA BA  
-000D06  2  AA AA AA AA  .byte $AA,$AA,$AA,$AA,$AA,$AA,$AA,$AA
-000D0A  2  AA AA AA AA  
-000D0E  2  BA BA BA BA  .byte $BA,$BA,$BA,$BA,$BA,$BA,$BA,$BA
-000D12  2  BA BA BA BA  
-000D16  2  AB AA AB AA  .byte $AB,$AA,$AB,$AA,$AB,$AA,$AB,$AA
-000D1A  2  AB AA AB AA  
-000D1E  2  BA BA BA BA  .byte $BA,$BA,$BA,$BA,$BA,$BA,$BA,$BA
-000D22  2  BA BA BA BA  
-000D26  2  AA AB AA AB  .byte $AA,$AB,$AA,$AB,$AA,$AB,$AA,$AB
-000D2A  2  AA AB AA AB  
-000D2E  2  BA BA BA BA  .byte $BA,$BA,$BA,$BA,$BA,$BA,$BA,$BA
-000D32  2  BA BA BA BA  
-000D36  2  AB AB AB AB  .byte $AB,$AB,$AB,$AB,$AB,$AB,$AB,$AB
-000D3A  2  AB AB AB AB  
-000D3E  2  BA BB BA BA  .byte $BA,$BB,$BA,$BA,$BA,$BB,$BA,$BA
-000D42  2  BA BB BA BA  
-000D46  2  AB AB AB AB  .byte $AB,$AB,$AB,$AB,$AB,$AB,$AB,$AB
-000D4A  2  AB AB AB AB  
-000D4E  2  BB BA BB BB  .byte $BB,$BA,$BB,$BB,$BB,$BA,$BB,$BB
-000D52  2  BB BA BB BB  
-000D56  2  AB AB AB AB  .byte $AB,$AB,$AB,$AB,$AB,$AB,$AB,$AB
-000D5A  2  AB AB AB AB  
-000D5E  2  BB BB BB BB  .byte $BB,$BB,$BB,$BB,$BB,$BB,$BB,$BB
-000D62  2  BB BB BB BB  
-000D66  2  AB AB AB AB  .byte $AB,$AB,$AB,$AB,$AB,$AB,$AB,$AB
-000D6A  2  AB AB AB AB  
-000D6E  2  BB BB BB BB  .byte $BB,$BB,$BB,$BB,$BB,$BB,$BB,$BB
-000D72  2  BB BB BB BB  
-000D76  2  BB AB BB AB  .byte $BB,$AB,$BB,$AB,$BB,$AB,$BB,$AB
-000D7A  2  BB AB BB AB  
-000D7E  2  BB BB BB BB  .byte $BB,$BB,$BB,$BB,$BB,$BB,$BB,$BB
-000D82  2  BB BB BB BB  
-000D86  2  BB BB AB BB  .byte $BB,$BB,$AB,$BB,$BB,$BB,$AB,$BB
-000D8A  2  BB BB AB BB  
-000D8E  2  BB BB BB BB  .byte $BB,$BB,$BB,$BB,$BB,$BB,$BB,$BB
-000D92  2  BB BB BB BB  
-000D96  2  BB BB BB BB  .byte $BB,$BB,$BB,$BB,$BB,$BB,$BB,$BB
-000D9A  2  BB BB BB BB  
-000D9E  2  BB BB BB BB  .byte $BB,$BB,$BB,$BB,$BB,$BB,$BB,$BB
-000DA2  2  BB BB BB BB  
-000DA6  2  BB BB BB BB  .byte $BB,$BB,$BB,$BB,$BB,$BB,$BB,$BB
-000DAA  2  BB BB BB BB  
-000DAE  2  BB BB BB BB  .byte $BB,$BB,$BB,$BB,$BB,$BB,$BB,$BB
-000DB2  2  BB BB BB BB  
-000DB6  2  BB BB BB BB  .byte $BB,$BB,$BB,$BB,$BB,$BB,$BB,$BB
-000DBA  2  BB BB BB BB  
-000DBE  2  BB BB BB BB  .byte $BB,$BB,$BB,$BB,$BB,$BB,$BB,$BB
-000DC2  2  BB BB BB BB  
-000DC6  2  BB BB BB BB  .byte $BB,$BB,$BB,$BB,$BB,$BB,$BB,$BB
-000DCA  2  BB BB BB BB  
-000DCE  2  BB BB BB BB  .byte $BB,$BB,$BB,$BB,$BB,$BB,$BB,$BB
-000DD2  2  BB BB BB BB  
-000DD6  2  BB BB BB BB  .byte $BB,$BB,$BB,$BB,$BB,$BB,$BB,$BB
-000DDA  2  BB BB BB BB  
-000DDE  2  CB CB CB CB  .byte $CB,$CB,$CB,$CB,$CB,$CB,$CB,$CB
-000DE2  2  CB CB CB CB  
-000DE6  2  BB BC BB BC  .byte $BB,$BC,$BB,$BC,$BB,$BC,$BB,$BC
-000DEA  2  BB BC BB BC  
-000DEE  2  CB CB CB CB  .byte $CB,$CB,$CB,$CB,$CB,$CB,$CB,$CB
-000DF2  2  CB CB CB CB  
-000DF6  2  BC BC BC BC  .byte $BC,$BC,$BC,$BC,$BC,$BC,$BC,$BC
-000DFA  2  BC BC BC BC  
-000DFE  2  CC CC CC CC  .byte $CC,$CC,$CC,$CC,$CC,$CC,$CC,$CC
-000E02  2  CC CC CC CC  
-000E06  2  BC CC BC CC  .byte $BC,$CC,$BC,$CC,$BC,$CC,$BC,$CC
-000E0A  2  BC CC BC CC  
-000E0E  2  CC CC CC CC  .byte $CC,$CC,$CC,$CC,$CC,$CC,$CC,$CC
-000E12  2  CC CC CC CC  
-000E16  2  CC CC CC C7  .byte $CC,$CC,$CC,$C7,$CC,$CC,$C7,$CC
-000E1A  2  CC CC C7 CC  
-000E1E  2  CC CC CC 77  .byte $CC,$CC,$CC,$77,$77,$CC,$77,$7C
-000E22  2  77 CC 77 7C  
-000E26  2  77 77 77 77  .byte $77,$77,$77,$77,$77,$77,$77,$77
-000E2A  2  77 77 77 77  
-000E2E  2  66 66 66 66  .byte $66,$66,$66,$66,$66,$66,$66,$66
-000E32  2  66 66 66 66  
-000E36  2  66 66 66 66  .byte $66,$66,$66,$66,$66,$66,$66,$66
-000E3A  2  66 66 66 66  
-000E3E  2  66 66 66 66  .byte $66,$66,$66,$66,$66,$66,$66,$66
-000E42  2  66 66 66 66  
-000E46  2  66 66 66 66  .byte $66,$66,$66,$66,$66,$66,$66,$66
-000E4A  2  66 66 66 66  
-000E4E  2  AA 66 66 66  .byte $AA,$66,$66,$66,$66,$66,$66,$66
-000E52  2  66 66 66 66  
-000E56  2  66 66 66 66  .byte $66,$66,$66,$66,$AA,$66,$66,$66
-000E5A  2  AA 66 66 66  
-000E5E  2  66 66 66 66  .byte $66,$66,$66,$66,$66,$66,$AA,$66
-000E62  2  66 66 AA 66  
-000E66  2  66 66 AA 66  .byte $66,$66,$AA,$66,$66,$66,$66,$66
-000E6A  2  66 66 66 66  
-000E6E  2  86 86 86 66  .byte $86,$86,$86,$66,$86,$86,$86,$66
-000E72  2  86 86 86 66  
-000E76  2  A6 66 66 66  .byte $A6,$66,$66,$66,$66,$AA,$66,$6A
-000E7A  2  66 AA 66 6A  
-000E7E  2  86 8A A6 86  .byte $86,$8A,$A6,$86,$86,$86,$86,$86
-000E82  2  86 86 86 86  
-000E86  2  66 66 66 66  .byte $66,$66,$66,$66,$66,$66,$66,$66
-000E8A  2  66 66 66 66  
-000E8E  2  86 86 86 AA  .byte $86,$86,$86,$AA,$A6,$86,$86,$86
-000E92  2  A6 86 86 86  
-000E96  2  68 66 68 66  .byte $68,$66,$68,$66,$68,$66,$68,$66
-000E9A  2  68 66 68 66  
-000E9E  2  86 86 86 86  .byte $86,$86,$86,$86,$8A,$AA,$86,$86
-000EA2  2  8A AA 86 86  
-000EA6  2  66 68 66 68  .byte $66,$68,$66,$68,$66,$68,$66,$68
-000EAA  2  66 68 66 68  
-000EAE  2  86 8A AA 86  .byte $86,$8A,$AA,$86,$86,$86,$86,$86
-000EB2  2  86 86 86 86  
-000EB6  2  68 68 68 68  .byte $68,$68,$68,$68,$68,$68,$68,$68
-000EBA  2  68 68 68 68  
-000EBE  2  86 88 86 86  .byte $86,$88,$86,$86,$86,$88,$86,$86
-000EC2  2  86 88 86 86  
-000EC6  2  68 AA AA 68  .byte $68,$AA,$AA,$68,$68,$68,$68,$68
-000ECA  2  68 68 68 68  
-000ECE  2  88 86 88 88  .byte $88,$86,$88,$88,$88,$8A,$AA,$88
-000ED2  2  88 8A AA 88  
-000ED6  2  68 68 68 68  .byte $68,$68,$68,$68,$68,$68,$68,$68
-000EDA  2  68 68 68 68  
-000EDE  2  88 88 88 88  .byte $88,$88,$88,$88,$88,$88,$88,$88
-000EE2  2  88 88 88 88  
-000EE6  2  68 68 68 AA  .byte $68,$68,$68,$AA,$AA,$68,$68,$68
-000EEA  2  AA 68 68 68  
-000EEE  2  88 88 88 88  .byte $88,$88,$88,$88,$88,$88,$88,$88
-000EF2  2  88 88 88 88  
-000EF6  2  88 68 88 68  .byte $88,$68,$88,$68,$88,$68,$88,$68
-000EFA  2  88 68 88 68  
-000EFE  2  88 BB BB B8  .byte $88,$BB,$BB,$B8,$88,$88,$88,$88
-000F02  2  88 88 88 88  
-000F06  2  88 88 68 88  .byte $88,$88,$68,$88,$88,$88,$68,$88
-000F0A  2  88 88 68 88  
-000F0E  2  88 88 88 88  .byte $88,$88,$88,$88,$88,$88,$88,$88
-000F12  2  88 88 88 88  
-000F16  2  BB 88 88 88  .byte $BB,$88,$88,$88,$88,$88,$8B,$BB
-000F1A  2  88 88 8B BB  
-000F1E  2  88 88 88 88  .byte $88,$88,$88,$88,$88,$88,$88,$88
-000F22  2  88 88 88 88  
-000F26  2  88 88 88 88  .byte $88,$88,$88,$88,$88,$88,$88,$88
-000F2A  2  88 88 88 88  
-000F2E  2  88 88 88 88  .byte $88,$88,$88,$88,$88,$88,$88,$88
-000F32  2  88 88 88 88  
-000F36  2  BB BB BB 98  .byte $BB,$BB,$BB,$98,$88,$88,$88,$9B
-000F3A  2  88 88 88 9B  
-000F3E  2  BB BB B9 88  .byte $BB,$BB,$B9,$88,$88,$88,$88,$89
-000F42  2  88 88 88 89  
-000F46  2  88 88 88 9B  .byte $88,$88,$88,$9B,$BB,$BB,$B8,$88
-000F4A  2  BB BB B8 88  
-000F4E  2  88 88 88 89  .byte $88,$88,$88,$89,$BB,$BB,$88,$88
-000F52  2  BB BB 88 88  
-000F56  2  88 88 88 89  .byte $88,$88,$88,$89,$88,$88,$88,$88
-000F5A  2  88 88 88 88  
-000F5E  2  88 88 88 98  .byte $88,$88,$88,$98,$88,$88,$88,$88
-000F62  2  88 88 88 88  
-000F66  2  88 88 89 89  .byte $88,$88,$89,$89,$88,$88,$88,$88
-000F6A  2  88 88 88 88  
-000F6E  2  BB BB BB 98  .byte $BB,$BB,$BB,$98,$88,$88,$88,$89
-000F72  2  88 88 88 89  
-000F76  2  98 88 89 BB  .byte $98,$88,$89,$BB,$98,$88,$89,$BB
-000F7A  2  98 88 89 BB  
-000F7E  2  98 88 89 BB  .byte $98,$88,$89,$BB,$98,$88,$89,$BB
-000F82  2  98 88 89 BB  
-000F86  2  BB BB BB 98  .byte $BB,$BB,$BB,$98,$88,$88,$88,$89
-000F8A  2  88 88 88 89  
-000F8E  2  88 89 9B B9  .byte $88,$89,$9B,$B9,$98,$88,$88,$88
-000F92  2  98 88 88 88  
-000F96  2  88 88 89 BB  .byte $88,$88,$89,$BB,$BB,$BB,$88,$88
-000F9A  2  BB BB 88 88  
-000F9E  2  88 89 BB 99  .byte $88,$89,$BB,$99,$88,$89,$BB,$98
-000FA2  2  88 89 BB 98  
-000FA6  2  88 89 BB 99  .byte $88,$89,$BB,$99,$88,$89,$BB,$98
-000FAA  2  88 89 BB 98  
-000FAE  2  88 88 89 BB  .byte $88,$88,$89,$BB,$BB,$BB,$98,$88
-000FB2  2  BB BB 98 88  
-000FB6  2  88 88 88 B9  .byte $88,$88,$88,$B9,$88,$88,$88,$88
-000FBA  2  88 88 88 88  
-000FBE  2  88 8A BB A8  .byte $88,$8A,$BB,$A8,$88,$88,$88,$88
-000FC2  2  88 88 88 88  
-000FC6  2  CC EC CC CA  .byte $CC,$EC,$CC,$CA,$88,$88,$88,$88
-000FCA  2  88 88 88 88  
-000FCE  2  88 88 8A AC  .byte $88,$88,$8A,$AC,$CA,$A8,$88,$CC
-000FD2  2  CA A8 88 CC  
-000FD6  2  88 88 88 8A  .byte $88,$88,$88,$8A,$AC,$CC,$CC,$88
-000FDA  2  AC CC CC 88  
-000FDE  2  88 88 88 AC  .byte $88,$88,$88,$AC,$CA,$A8,$AA,$CC
-000FE2  2  CA A8 AA CC  
-000FE6  2  CC CC CC CA  .byte $CC,$CC,$CC,$CA,$A8,$88,$88,$8A
-000FEA  2  A8 88 88 8A  
-000FEE  2  88 88 8A AA  .byte $88,$88,$8A,$AA,$AC,$CE,$CA,$88
-000FF2  2  AC CE CA 88  
-000FF6  2  88 88 88 8A  .byte $88,$88,$88,$8A,$CA,$88,$AC,$A8
-000FFA  2  CA 88 AC A8  
-000FFE  2  88 88 88 8A  .byte $88,$88,$88,$8A,$CA,$88,$AC,$A8
-001002  2  CA 88 AC A8  
-001006  2  88 88 88 8C  .byte $88,$88,$88,$8C,$CC,$CC,$CA,$88
-00100A  2  CC CC CA 88  
-00100E  2  AC CE CC CC  .byte $AC,$CE,$CC,$CC,$C8,$88,$88,$88
-001012  2  C8 88 88 88  
-001016  2  CA 88 88 AC  .byte $CA,$88,$88,$AC,$C8,$88,$88,$AC
-00101A  2  C8 88 88 AC  
-00101E  2  CA 88 88 AC  .byte $CA,$88,$88,$AC,$C8,$88,$88,$AC
-001022  2  C8 88 88 AC  
-001026  2  AC CC CC CA  .byte $AC,$CC,$CC,$CA,$88,$88,$88,$88
-00102A  2  88 88 88 88  
-00102E  2  8A CC CA 88  .byte $8A,$CC,$CA,$88,$88,$88,$88,$88
-001032  2  88 88 88 88  
-001036  2  AC CC A8 88  .byte $AC,$CC,$A8,$88,$88,$88,$88,$8A
-00103A  2  88 88 88 8A  
-00103E  2  CE EC CA 88  .byte $CE,$EC,$CA,$88,$88,$88,$8A,$CC
-001042  2  88 88 8A CC  
-001046  2  88 AA CC AA  .byte $88,$AA,$CC,$AA,$88,$AA,$CC,$AA
-00104A  2  88 AA CC AA  
-00104E  2  88 88 AC EE  .byte $88,$88,$AC,$EE,$CC,$CC,$CA,$88
-001052  2  CC CC CA 88  
-001056  2  88 88 AC CC  .byte $88,$88,$AC,$CC,$8A,$CC,$CA,$88
-00105A  2  8A CC CA 88  
-00105E  2  88 AA CC 88  .byte $88,$AA,$CC,$88,$88,$8A,$CC,$AA
-001062  2  88 8A CC AA  
-001066  2  CC CC C8 88  .byte $CC,$CC,$C8,$88,$88,$88,$8A,$CC
-00106A  2  88 88 8A CC  
-00106E  2  AC CC CA 88  .byte $AC,$CC,$CA,$88,$88,$88,$88,$88
-001072  2  88 88 88 88  
-001076  2  88 8C CC A8  .byte $88,$8C,$CC,$A8,$88,$88,$88,$88
-00107A  2  88 88 88 88  
-00107E  2  88 88 CC CA  .byte $88,$88,$CC,$CA,$88,$88,$88,$88
-001082  2  88 88 88 88  
-001086  2  88 88 CC CC  .byte $88,$88,$CC,$CC,$CA,$88,$88,$88
-00108A  2  CA 88 88 88  
-00108E  2  88 8C CC CC  .byte $88,$8C,$CC,$CC,$EE,$CC,$CA,$88
-001092  2  EE CC CA 88  
-001096  2  88 8C CC A8  .byte $88,$8C,$CC,$A8,$88,$88,$8C,$CA
-00109A  2  88 88 8C CA  
-00109E  2  A8 AC A8 88  .byte $A8,$AC,$A8,$88,$88,$88,$88,$8C
-0010A2  2  88 88 88 8C  
-0010A6  2  A8 AC A8 88  .byte $A8,$AC,$A8,$88,$88,$88,$88,$8C
-0010AA  2  88 88 88 8C  
-0010AE  2  88 8A CC A8  .byte $88,$8A,$CC,$A8,$88,$88,$8C,$C8
-0010B2  2  88 88 8C C8  
-0010B6  2  88 88 8A CC  .byte $88,$88,$8A,$CC,$CE,$EC,$CA,$88
-0010BA  2  CE EC CA 88  
-0010BE  2  88 88 88 AA  .byte $88,$88,$88,$AA,$AA,$AA,$A8,$88
-0010C2  2  AA AA A8 88  
-0010C6  2  88 88 88 88  .byte $88,$88,$88,$88,$88,$88,$88,$88
-0010CA  2  88 88 88 88  
-0010CE  2  88 88 88 88  .byte $88,$88,$88,$88,$88,$88,$88,$88
-0010D2  2  88 88 88 88  
-0010D6  2  88 88 88 88  .byte $88,$88,$88,$88,$88,$88,$88,$88
-0010DA  2  88 88 88 88  
-0010DE  2  88 88 88 88  .byte $88,$88,$88,$88,$88,$88,$88,$88
-0010E2  2  88 88 88 88  
-0010E6  2  88 88 88 88  .byte $88,$88,$88,$88,$88,$88,$88,$88
-0010EA  2  88 88 88 88  
-0010EE  2  88 88 88 88  .byte $88,$88,$88,$88,$88,$88,$88,$88
-0010F2  2  88 88 88 88  
-0010F6  2  88 88 88 88  .byte $88,$88,$88,$88,$88,$88,$88,$88
-0010FA  2  88 88 88 88  
-0010FE  2  88 88 88 88  .byte $88,$88,$88,$88,$88,$88,$88,$88
-001102  2  88 88 88 88  
-001106  2  88 88 88 88  .byte $88,$88,$88,$88,$88,$88,$88,$88
-00110A  2  88 88 88 88  
-00110E  2  88 88 88 88  .byte $88,$88,$88,$88,$88,$88,$88,$88
-001112  2  88 88 88 88  
-001116  2  88 88 88 88  .byte $88,$88,$88,$88,$88,$88,$88,$88
-00111A  2  88 88 88 88  
-00111E  2  88 88 88 88  .byte $88,$88,$88,$88,$88,$88,$88,$88
-001122  2  88 88 88 88  
-001126  2  88 88 88 88  .byte $88,$88,$88,$88,$88,$88,$88,$88
-00112A  2  88 88 88 88  
-00112E  2               
-00112E  1               
+0008DA  1  DD 4F 08           cmp scroll_counter,x
+0008DD  1  D0 10              bne @next
+0008DF  1  FE 41 08           inc scroll,x
+0008E2  1  9E 4F 08           stz scroll_counter,x
+0008E5  1  A9 10              lda #16
+0008E7  1  DD 41 08           cmp scroll,x
+0008EA  1  D0 03              bne @next
+0008EC  1  9E 41 08           stz scroll,x
+0008EF  1                     @next:
+0008EF  1  E8                 inx
+0008F0  1  E0 0E              cpx #14
+0008F2  1  D0 E3              bne @increment_loop
+0008F4  1  C8               iny
+0008F5  1  4C A6 08         jmp @ratio_loop
+0008F8  1                 @done:
+0008F8  1  60             rts
+0008F9  1               
+0008F9  1               reset_screen_scroll:
+0008F9  1  9C 37 9F       stz VERA_L1_hscroll_l
+0008FC  1  60             rts
+0008FD  1               
+0008FD  1               warp_screen:
+0008FD  1  AE 12 08       ldx increment
+000900  1  BD 41 08       lda scroll,x
+000903  1  8D 37 9F       sta VERA_L1_hscroll_l
+000906  1  9C 38 9F       stz VERA_L1_hscroll_h
+000909  1  EE 12 08       inc increment
+00090C  1  A9 0E          lda #14
+00090E  1  CD 12 08       cmp increment
+000911  1  D0 03          bne @done
+000913  1  9C 12 08       stz increment
+000916  1               @done:
+000916  1  AE 12 08       ldx increment
+000919  1  BD 25 08       lda parallax_blocks,x
+00091C  1  8D 28 9F       sta VERA_irqline_l
+00091F  1  60             rts
+000920  1               
+000920  1               loadpallet:
+000920  1  A9 00          lda #$00
+000922  1  8D 20 9F       sta VERA_addr_low
+000925  1  A9 FA          lda #$FA
+000927  1  8D 21 9F       sta VERA_addr_high
+00092A  1  A9 11          lda #$11
+00092C  1  8D 22 9F       sta VERA_addr_bank
+00092F  1  A6 00          ldx 0
+000931  1               @loop:
+000931  1  BD ED 09       lda palette,x
+000934  1  8D 23 9F       sta VERA_data0
+000937  1  E8             inx
+000938  1  E0 40          cpx #64
+00093A  1  D0 F5          bne @loop
+00093C  1  60             rts
+00093D  1               
+00093D  1               divide: ;ZP_PRT_1 = dividend, ZP_PTR_2 = divisor, ZP_PTR_3 = remainder
+00093D  1                       ;result is stored in ZP_PRT_1
+00093D  1  64 24          stz ZP_PTR_3
+00093F  1  A2 08          ldx #8
+000941  1               @loop:
+000941  1  06 00          asl ZP_PTR_1
+000943  1  26 24          rol ZP_PTR_3
+000945  1  A5 24          lda ZP_PTR_3
+000947  1  38             sec
+000948  1  E5 22          sbc ZP_PTR_2
+00094A  1  90 04          bcc @done
+00094C  1  85 24          sta ZP_PTR_3
+00094E  1  E6 00          inc ZP_PTR_1
+000950  1               @done:
+000950  1  CA             dex
+000951  1  D0 EE          bne @loop
+000953  1  60             rts
+000954  1               
+000954  1               loadtileset:
+000954  1  A9 10 8D 22    VERA_SET_ADDR TILESET_START, 1
+000958  1  9F A9 F8 8D  
+00095C  1  21 9F A9 00  
+000963  1  A9 2D 85 00    store_16_value ZP_PTR_1, tileset
+000967  1  A9 0A 85 01  
+00096B  1               @loop:
+00096B  1  B2 00          lda (ZP_PTR_1)
+00096D  1  8D 23 9F       sta VERA_data0
+000970  1  18 A5 00 69    add_16_value ZP_PTR_1, 1
+000974  1  01 85 00 A5  
+000978  1  01 69 00 85  
+00097D  1  A5 01 C9 11    compare_16_value ZP_PTR_1, (tileset + 1792), @loop
+000981  1  D0 E8 A5 00  
+000985  1  C9 2D D0 E2  
+000989  1  60             rts
+00098A  1               
+00098A  1               inc_frame:
+00098A  1  EE 14 08       inc frame
+00098D  1  A9 3C          lda #60
+00098F  1  CD 14 08       cmp frame
+000992  1  D0 02          bne @continue
+000994  1  A9 00          lda #0
+000996  1               @continue:
+000996  1  60             rts
+000997  1               
+000997  1               fillbackground:
+000997  1  A9 10          lda #$10
+000999  1  8D 22 9F       sta VERA_addr_bank
+00099C  1  A0 00          ldy #0
+00099E  1                 @yloop:
+00099E  1  9C 20 9F         stz VERA_addr_low
+0009A1  1  98               tya
+0009A2  1  8D 21 9F         sta VERA_addr_high
+0009A5  1  A2 00            ldx #0
+0009A7  1                   @xloop:
+0009A7  1  B9 15 08           lda background_list,y
+0009AA  1  8D 23 9F           sta VERA_data0
+0009AD  1  A9 00              lda #0
+0009AF  1  8D 23 9F           sta VERA_data0
+0009B2  1  E8                 inx
+0009B3  1  E0 18              cpx #24
+0009B5  1  D0 F0              bne @xloop
+0009B7  1  C8               iny
+0009B8  1  C0 0F            cpy #15
+0009BA  1  D0 E2            bne @yloop
+0009BC  1  60             rts
+0009BD  1               
+0009BD  1               main:
+0009BD  1  CB             wai
+0009BE  1  4C BD 09       jmp main
+0009C1  1               
+0009C1  1               update:
+0009C1  1  AD 27 9F       lda VERA_isr
+0009C4  1  29 01          and #$01
+0009C6  1  D0 0A          bne @frame_update
+0009C8  1  AD 27 9F       lda VERA_isr
+0009CB  1  29 02          and #$02
+0009CD  1  D0 0C          bne @line_update
+0009CF  1  4C EA 09       jmp @continue
+0009D2  1               @frame_update:
+0009D2  1  20 8A 09       jsr inc_frame
+0009D5  1  20 A4 08       jsr scroll_positions
+0009D8  1  20 F9 08       jsr reset_screen_scroll
+0009DB  1               @line_update:
+0009DB  1  20 FD 08       jsr warp_screen
+0009DE  1  AD 27 9F       lda VERA_isr
+0009E1  1  09 02          ora #$02
+0009E3  1  8D 27 9F       sta VERA_isr
+0009E6  1  7A             ply
+0009E7  1  FA             plx
+0009E8  1  68             pla
+0009E9  1  40             rti
+0009EA  1               @continue:
+0009EA  1  6C 10 08       jmp (default_irq_vector)
+0009ED  1               
+0009ED  1               palette:
+0009ED  1                 .include "palette.inc"
+0009ED  2               ;pallet - size is 64
+0009ED  2  00 00 63 08  .byte $00,$00,$63,$08,$37,$03,$68,$03
+0009F1  2  37 03 68 03  
+0009F5  2  6E 05 9F 06  .byte $6E,$05,$9F,$06,$CE,$05,$33,$03
+0009F9  2  CE 05 33 03  
+0009FD  2  FF 0F DF 0C  .byte $FF,$0F,$DF,$0C,$23,$02,$23,$04
+000A01  2  23 02 23 04  
+000A05  2  33 06 53 08  .byte $33,$06,$53,$08,$72,$0D,$A6,$0D
+000A09  2  72 0D A6 0D  
+000A0D  2  C9 0E F3 0F  .byte $C9,$0E,$F3,$0F,$E5,$09,$B3,$06
+000A11  2  E5 09 B3 06  
+000A15  2  96 03 62 04  .byte $96,$03,$62,$04,$42,$05,$AB,$09
+000A19  2  42 05 AB 09  
+000A1D  2  78 08 66 06  .byte $78,$08,$66,$06,$55,$05,$48,$07
+000A21  2  55 05 48 07  
+000A25  2  33 0A 56 0D  .byte $33,$0A,$56,$0D,$7B,$0D,$94,$08
+000A29  2  7B 0D 94 08  
+000A2D  2               
+000A2D  1               tileset:
+000A2D  1                 .include "tileset.inc"
+000A2D  2               ;tileset - size is 1792
+000A2D  2  22 22 22 22  .byte $22,$22,$22,$22,$22,$22,$22,$22
+000A31  2  22 22 22 22  
+000A35  2  22 22 22 22  .byte $22,$22,$22,$22,$22,$22,$22,$22
+000A39  2  22 22 22 22  
+000A3D  2  22 22 22 22  .byte $22,$22,$22,$22,$22,$22,$22,$22
+000A41  2  22 22 22 22  
+000A45  2  22 22 22 22  .byte $22,$22,$22,$22,$22,$22,$22,$22
+000A49  2  22 22 22 22  
+000A4D  2  22 22 22 22  .byte $22,$22,$22,$22,$22,$22,$22,$22
+000A51  2  22 22 22 22  
+000A55  2  22 22 22 22  .byte $22,$22,$22,$22,$22,$22,$22,$22
+000A59  2  22 22 22 22  
+000A5D  2  22 22 22 22  .byte $22,$22,$22,$22,$22,$22,$22,$22
+000A61  2  22 22 22 22  
+000A65  2  22 22 22 22  .byte $22,$22,$22,$22,$22,$22,$22,$22
+000A69  2  22 22 22 22  
+000A6D  2  22 22 22 22  .byte $22,$22,$22,$22,$22,$22,$22,$22
+000A71  2  22 22 22 22  
+000A75  2  22 22 22 22  .byte $22,$22,$22,$22,$22,$22,$22,$22
+000A79  2  22 22 22 22  
+000A7D  2  22 22 22 22  .byte $22,$22,$22,$22,$22,$22,$22,$22
+000A81  2  22 22 22 22  
+000A85  2  22 22 22 22  .byte $22,$22,$22,$22,$22,$22,$22,$22
+000A89  2  22 22 22 22  
+000A8D  2  22 22 22 22  .byte $22,$22,$22,$22,$22,$22,$22,$22
+000A91  2  22 22 22 22  
+000A95  2  22 22 22 22  .byte $22,$22,$22,$22,$22,$22,$22,$22
+000A99  2  22 22 22 22  
+000A9D  2  22 22 22 22  .byte $22,$22,$22,$22,$22,$22,$22,$22
+000AA1  2  22 22 22 22  
+000AA5  2  22 22 22 22  .byte $22,$22,$22,$22,$22,$22,$22,$22
+000AA9  2  22 22 22 22  
+000AAD  2  22 22 22 22  .byte $22,$22,$22,$22,$22,$22,$22,$22
+000AB1  2  22 22 22 22  
+000AB5  2  22 22 22 22  .byte $22,$22,$22,$22,$22,$22,$22,$22
+000AB9  2  22 22 22 22  
+000ABD  2  22 22 22 22  .byte $22,$22,$22,$22,$22,$22,$22,$22
+000AC1  2  22 22 22 22  
+000AC5  2  22 22 22 22  .byte $22,$22,$22,$22,$22,$22,$22,$22
+000AC9  2  22 22 22 22  
+000ACD  2  22 22 22 22  .byte $22,$22,$22,$22,$22,$22,$22,$22
+000AD1  2  22 22 22 22  
+000AD5  2  22 22 22 22  .byte $22,$22,$22,$22,$22,$22,$22,$22
+000AD9  2  22 22 22 22  
+000ADD  2  22 22 22 22  .byte $22,$22,$22,$22,$22,$22,$22,$22
+000AE1  2  22 22 22 22  
+000AE5  2  22 22 22 22  .byte $22,$22,$22,$22,$22,$22,$22,$22
+000AE9  2  22 22 22 22  
+000AED  2  32 32 32 22  .byte $32,$32,$32,$22,$32,$32,$32,$22
+000AF1  2  32 32 32 22  
+000AF5  2  22 22 22 22  .byte $22,$22,$22,$22,$22,$22,$22,$22
+000AF9  2  22 22 22 22  
+000AFD  2  32 32 32 32  .byte $32,$32,$32,$32,$32,$32,$32,$32
+000B01  2  32 32 32 32  
+000B05  2  22 22 22 22  .byte $22,$22,$22,$22,$22,$22,$22,$22
+000B09  2  22 22 22 22  
+000B0D  2  32 32 32 32  .byte $32,$32,$32,$32,$32,$32,$32,$32
+000B11  2  32 32 32 32  
+000B15  2  23 22 23 22  .byte $23,$22,$23,$22,$23,$22,$23,$22
+000B19  2  23 22 23 22  
+000B1D  2  32 32 32 32  .byte $32,$32,$32,$32,$32,$32,$32,$32
+000B21  2  32 32 32 32  
+000B25  2  22 23 22 23  .byte $22,$23,$22,$23,$22,$23,$22,$23
+000B29  2  22 23 22 23  
+000B2D  2  32 32 32 32  .byte $32,$32,$32,$32,$32,$32,$32,$32
+000B31  2  32 32 32 32  
+000B35  2  23 23 23 23  .byte $23,$23,$23,$23,$23,$23,$23,$23
+000B39  2  23 23 23 23  
+000B3D  2  32 33 32 32  .byte $32,$33,$32,$32,$32,$33,$32,$32
+000B41  2  32 33 32 32  
+000B45  2  23 23 23 23  .byte $23,$23,$23,$23,$23,$23,$23,$23
+000B49  2  23 23 23 23  
+000B4D  2  33 32 33 33  .byte $33,$32,$33,$33,$33,$32,$33,$33
+000B51  2  33 32 33 33  
+000B55  2  23 23 23 23  .byte $23,$23,$23,$23,$23,$23,$23,$23
+000B59  2  23 23 23 23  
+000B5D  2  33 33 33 33  .byte $33,$33,$33,$33,$33,$33,$33,$33
+000B61  2  33 33 33 33  
+000B65  2  23 23 23 23  .byte $23,$23,$23,$23,$23,$23,$23,$23
+000B69  2  23 23 23 23  
+000B6D  2  33 33 33 33  .byte $33,$33,$33,$33,$33,$33,$33,$33
+000B71  2  33 33 33 33  
+000B75  2  33 23 33 23  .byte $33,$23,$33,$23,$33,$23,$33,$23
+000B79  2  33 23 33 23  
+000B7D  2  33 33 33 33  .byte $33,$33,$33,$33,$33,$33,$33,$33
+000B81  2  33 33 33 33  
+000B85  2  33 33 23 33  .byte $33,$33,$23,$33,$33,$33,$23,$33
+000B89  2  33 33 23 33  
+000B8D  2  33 33 33 33  .byte $33,$33,$33,$33,$33,$33,$33,$33
+000B91  2  33 33 33 33  
+000B95  2  33 33 33 33  .byte $33,$33,$33,$33,$33,$33,$33,$33
+000B99  2  33 33 33 33  
+000B9D  2  33 33 33 33  .byte $33,$33,$33,$33,$33,$33,$33,$33
+000BA1  2  33 33 33 33  
+000BA5  2  33 33 33 33  .byte $33,$33,$33,$33,$33,$33,$33,$33
+000BA9  2  33 33 33 33  
+000BAD  2  33 33 33 33  .byte $33,$33,$33,$33,$33,$33,$33,$33
+000BB1  2  33 33 33 33  
+000BB5  2  33 33 33 33  .byte $33,$33,$33,$33,$33,$33,$33,$33
+000BB9  2  33 33 33 33  
+000BBD  2  33 33 33 33  .byte $33,$33,$33,$33,$33,$33,$33,$33
+000BC1  2  33 33 33 33  
+000BC5  2  33 33 33 33  .byte $33,$33,$33,$33,$33,$33,$33,$33
+000BC9  2  33 33 33 33  
+000BCD  2  33 33 33 33  .byte $33,$33,$33,$33,$33,$33,$33,$33
+000BD1  2  33 33 33 33  
+000BD5  2  33 33 33 33  .byte $33,$33,$33,$33,$33,$33,$33,$33
+000BD9  2  33 33 33 33  
+000BDD  2  33 33 33 33  .byte $33,$33,$33,$33,$33,$33,$33,$33
+000BE1  2  33 33 33 33  
+000BE5  2  33 33 33 33  .byte $33,$33,$33,$33,$33,$33,$33,$33
+000BE9  2  33 33 33 33  
+000BED  2  43 43 43 33  .byte $43,$43,$43,$33,$43,$43,$43,$33
+000BF1  2  43 43 43 33  
+000BF5  2  33 33 33 33  .byte $33,$33,$33,$33,$33,$33,$33,$33
+000BF9  2  33 33 33 33  
+000BFD  2  43 43 43 43  .byte $43,$43,$43,$43,$43,$43,$43,$43
+000C01  2  43 43 43 43  
+000C05  2  33 33 33 33  .byte $33,$33,$33,$33,$33,$33,$33,$33
+000C09  2  33 33 33 33  
+000C0D  2  43 43 43 43  .byte $43,$43,$43,$43,$43,$43,$43,$43
+000C11  2  43 43 43 43  
+000C15  2  34 33 34 33  .byte $34,$33,$34,$33,$34,$33,$34,$33
+000C19  2  34 33 34 33  
+000C1D  2  43 43 43 43  .byte $43,$43,$43,$43,$43,$43,$43,$43
+000C21  2  43 43 43 43  
+000C25  2  33 34 33 34  .byte $33,$34,$33,$34,$33,$34,$33,$34
+000C29  2  33 34 33 34  
+000C2D  2  43 43 43 43  .byte $43,$43,$43,$43,$43,$43,$43,$43
+000C31  2  43 43 43 43  
+000C35  2  34 34 34 34  .byte $34,$34,$34,$34,$34,$34,$34,$34
+000C39  2  34 34 34 34  
+000C3D  2  43 44 43 43  .byte $43,$44,$43,$43,$43,$44,$43,$43
+000C41  2  43 44 43 43  
+000C45  2  34 34 34 34  .byte $34,$34,$34,$34,$34,$34,$34,$34
+000C49  2  34 34 34 34  
+000C4D  2  44 43 44 44  .byte $44,$43,$44,$44,$44,$43,$44,$44
+000C51  2  44 43 44 44  
+000C55  2  34 34 34 34  .byte $34,$34,$34,$34,$34,$34,$34,$34
+000C59  2  34 34 34 34  
+000C5D  2  44 44 44 44  .byte $44,$44,$44,$44,$44,$44,$44,$44
+000C61  2  44 44 44 44  
+000C65  2  34 34 34 34  .byte $34,$34,$34,$34,$34,$34,$34,$34
+000C69  2  34 34 34 34  
+000C6D  2  44 44 44 44  .byte $44,$44,$44,$44,$44,$44,$44,$44
+000C71  2  44 44 44 44  
+000C75  2  44 34 44 34  .byte $44,$34,$44,$34,$44,$34,$44,$34
+000C79  2  44 34 44 34  
+000C7D  2  44 44 44 44  .byte $44,$44,$44,$44,$44,$44,$44,$44
+000C81  2  44 44 44 44  
+000C85  2  44 44 34 44  .byte $44,$44,$34,$44,$44,$44,$34,$44
+000C89  2  44 44 34 44  
+000C8D  2  44 44 44 44  .byte $44,$44,$44,$44,$44,$44,$44,$44
+000C91  2  44 44 44 44  
+000C95  2  44 44 44 44  .byte $44,$44,$44,$44,$44,$44,$44,$44
+000C99  2  44 44 44 44  
+000C9D  2  44 44 44 44  .byte $44,$44,$44,$44,$44,$44,$44,$44
+000CA1  2  44 44 44 44  
+000CA5  2  44 44 44 44  .byte $44,$44,$44,$44,$44,$44,$44,$44
+000CA9  2  44 44 44 44  
+000CAD  2  44 44 44 44  .byte $44,$44,$44,$44,$44,$44,$44,$44
+000CB1  2  44 44 44 44  
+000CB5  2  44 44 44 44  .byte $44,$44,$44,$44,$44,$44,$44,$44
+000CB9  2  44 44 44 44  
+000CBD  2  44 44 44 44  .byte $44,$44,$44,$44,$44,$44,$44,$44
+000CC1  2  44 44 44 44  
+000CC5  2  44 44 44 44  .byte $44,$44,$44,$44,$44,$44,$44,$44
+000CC9  2  44 44 44 44  
+000CCD  2  44 44 44 44  .byte $44,$44,$44,$44,$44,$44,$44,$44
+000CD1  2  44 44 44 44  
+000CD5  2  44 44 44 44  .byte $44,$44,$44,$44,$44,$44,$44,$44
+000CD9  2  44 44 44 44  
+000CDD  2  44 44 44 44  .byte $44,$44,$44,$44,$44,$44,$44,$44
+000CE1  2  44 44 44 44  
+000CE5  2  44 44 44 44  .byte $44,$44,$44,$44,$44,$44,$44,$44
+000CE9  2  44 44 44 44  
+000CED  2  54 54 54 44  .byte $54,$54,$54,$44,$54,$54,$54,$44
+000CF1  2  54 54 54 44  
+000CF5  2  44 44 44 44  .byte $44,$44,$44,$44,$44,$44,$44,$44
+000CF9  2  44 44 44 44  
+000CFD  2  54 54 54 54  .byte $54,$54,$54,$54,$54,$54,$54,$54
+000D01  2  54 54 54 54  
+000D05  2  44 44 44 44  .byte $44,$44,$44,$44,$44,$44,$44,$44
+000D09  2  44 44 44 44  
+000D0D  2  54 54 54 54  .byte $54,$54,$54,$54,$54,$54,$54,$54
+000D11  2  54 54 54 54  
+000D15  2  45 44 45 44  .byte $45,$44,$45,$44,$45,$44,$45,$44
+000D19  2  45 44 45 44  
+000D1D  2  54 54 54 54  .byte $54,$54,$54,$54,$54,$54,$54,$54
+000D21  2  54 54 54 54  
+000D25  2  44 45 44 45  .byte $44,$45,$44,$45,$44,$45,$44,$45
+000D29  2  44 45 44 45  
+000D2D  2  54 54 54 54  .byte $54,$54,$54,$54,$54,$54,$54,$54
+000D31  2  54 54 54 54  
+000D35  2  45 45 45 45  .byte $45,$45,$45,$45,$45,$45,$45,$45
+000D39  2  45 45 45 45  
+000D3D  2  54 55 54 54  .byte $54,$55,$54,$54,$54,$55,$54,$54
+000D41  2  54 55 54 54  
+000D45  2  45 45 45 45  .byte $45,$45,$45,$45,$45,$45,$45,$45
+000D49  2  45 45 45 45  
+000D4D  2  55 54 55 55  .byte $55,$54,$55,$55,$55,$54,$55,$55
+000D51  2  55 54 55 55  
+000D55  2  45 45 45 45  .byte $45,$45,$45,$45,$45,$45,$45,$45
+000D59  2  45 45 45 45  
+000D5D  2  55 55 55 55  .byte $55,$55,$55,$55,$55,$55,$55,$55
+000D61  2  55 55 55 55  
+000D65  2  45 45 45 45  .byte $45,$45,$45,$45,$45,$45,$45,$45
+000D69  2  45 45 45 45  
+000D6D  2  55 55 55 55  .byte $55,$55,$55,$55,$55,$55,$55,$55
+000D71  2  55 55 55 55  
+000D75  2  55 45 55 45  .byte $55,$45,$55,$45,$55,$45,$55,$45
+000D79  2  55 45 55 45  
+000D7D  2  55 55 55 55  .byte $55,$55,$55,$55,$55,$55,$55,$55
+000D81  2  55 55 55 55  
+000D85  2  55 55 45 55  .byte $55,$55,$45,$55,$55,$55,$45,$55
+000D89  2  55 55 45 55  
+000D8D  2  55 55 55 55  .byte $55,$55,$55,$55,$55,$55,$55,$55
+000D91  2  55 55 55 55  
+000D95  2  55 55 55 55  .byte $55,$55,$55,$55,$55,$55,$55,$55
+000D99  2  55 55 55 55  
+000D9D  2  55 55 55 55  .byte $55,$55,$55,$55,$55,$55,$55,$55
+000DA1  2  55 55 55 55  
+000DA5  2  55 55 55 55  .byte $55,$55,$55,$55,$55,$55,$55,$55
+000DA9  2  55 55 55 55  
+000DAD  2  55 55 55 55  .byte $55,$55,$55,$55,$55,$55,$55,$55
+000DB1  2  55 55 55 55  
+000DB5  2  55 55 55 55  .byte $55,$55,$55,$55,$55,$55,$55,$55
+000DB9  2  55 55 55 55  
+000DBD  2  55 55 55 55  .byte $55,$55,$55,$55,$55,$55,$55,$55
+000DC1  2  55 55 55 55  
+000DC5  2  55 55 55 55  .byte $55,$55,$55,$55,$55,$55,$55,$55
+000DC9  2  55 55 55 55  
+000DCD  2  55 55 55 55  .byte $55,$55,$55,$55,$55,$55,$55,$55
+000DD1  2  55 55 55 55  
+000DD5  2  55 55 55 55  .byte $55,$55,$55,$55,$55,$55,$55,$55
+000DD9  2  55 55 55 55  
+000DDD  2  65 65 65 65  .byte $65,$65,$65,$65,$65,$65,$65,$65
+000DE1  2  65 65 65 65  
+000DE5  2  55 56 55 56  .byte $55,$56,$55,$56,$55,$56,$55,$56
+000DE9  2  55 56 55 56  
+000DED  2  65 65 65 65  .byte $65,$65,$65,$65,$65,$65,$65,$65
+000DF1  2  65 65 65 65  
+000DF5  2  56 56 56 56  .byte $56,$56,$56,$56,$56,$56,$56,$56
+000DF9  2  56 56 56 56  
+000DFD  2  66 66 66 66  .byte $66,$66,$66,$66,$66,$66,$66,$66
+000E01  2  66 66 66 66  
+000E05  2  56 66 56 66  .byte $56,$66,$56,$66,$56,$66,$56,$66
+000E09  2  56 66 56 66  
+000E0D  2  66 66 66 66  .byte $66,$66,$66,$66,$66,$66,$66,$66
+000E11  2  66 66 66 66  
+000E15  2  66 66 66 61  .byte $66,$66,$66,$61,$66,$66,$61,$66
+000E19  2  66 66 61 66  
+000E1D  2  66 66 66 11  .byte $66,$66,$66,$11,$11,$66,$11,$16
+000E21  2  11 66 11 16  
+000E25  2  11 11 11 11  .byte $11,$11,$11,$11,$11,$11,$11,$11
+000E29  2  11 11 11 11  
+000E2D  2  77 77 77 77  .byte $77,$77,$77,$77,$77,$77,$77,$77
+000E31  2  77 77 77 77  
+000E35  2  77 77 77 77  .byte $77,$77,$77,$77,$77,$77,$77,$77
+000E39  2  77 77 77 77  
+000E3D  2  77 77 77 77  .byte $77,$77,$77,$77,$77,$77,$77,$77
+000E41  2  77 77 77 77  
+000E45  2  77 77 77 77  .byte $77,$77,$77,$77,$77,$77,$77,$77
+000E49  2  77 77 77 77  
+000E4D  2  44 77 77 77  .byte $44,$77,$77,$77,$77,$77,$77,$77
+000E51  2  77 77 77 77  
+000E55  2  77 77 77 77  .byte $77,$77,$77,$77,$44,$77,$77,$77
+000E59  2  44 77 77 77  
+000E5D  2  77 77 77 77  .byte $77,$77,$77,$77,$77,$77,$44,$77
+000E61  2  77 77 44 77  
+000E65  2  77 77 44 77  .byte $77,$77,$44,$77,$77,$77,$77,$77
+000E69  2  77 77 77 77  
+000E6D  2  27 27 27 77  .byte $27,$27,$27,$77,$27,$27,$27,$77
+000E71  2  27 27 27 77  
+000E75  2  47 77 77 77  .byte $47,$77,$77,$77,$77,$44,$77,$74
+000E79  2  77 44 77 74  
+000E7D  2  27 24 47 27  .byte $27,$24,$47,$27,$27,$27,$27,$27
+000E81  2  27 27 27 27  
+000E85  2  77 77 77 77  .byte $77,$77,$77,$77,$77,$77,$77,$77
+000E89  2  77 77 77 77  
+000E8D  2  27 27 27 44  .byte $27,$27,$27,$44,$47,$27,$27,$27
+000E91  2  47 27 27 27  
+000E95  2  72 77 72 77  .byte $72,$77,$72,$77,$72,$77,$72,$77
+000E99  2  72 77 72 77  
+000E9D  2  27 27 27 27  .byte $27,$27,$27,$27,$24,$44,$27,$27
+000EA1  2  24 44 27 27  
+000EA5  2  77 72 77 72  .byte $77,$72,$77,$72,$77,$72,$77,$72
+000EA9  2  77 72 77 72  
+000EAD  2  27 24 44 27  .byte $27,$24,$44,$27,$27,$27,$27,$27
+000EB1  2  27 27 27 27  
+000EB5  2  72 72 72 72  .byte $72,$72,$72,$72,$72,$72,$72,$72
+000EB9  2  72 72 72 72  
+000EBD  2  27 22 27 27  .byte $27,$22,$27,$27,$27,$22,$27,$27
+000EC1  2  27 22 27 27  
+000EC5  2  72 44 44 72  .byte $72,$44,$44,$72,$72,$72,$72,$72
+000EC9  2  72 72 72 72  
+000ECD  2  22 27 22 22  .byte $22,$27,$22,$22,$22,$24,$44,$22
+000ED1  2  22 24 44 22  
+000ED5  2  72 72 72 72  .byte $72,$72,$72,$72,$72,$72,$72,$72
+000ED9  2  72 72 72 72  
+000EDD  2  22 22 22 22  .byte $22,$22,$22,$22,$22,$22,$22,$22
+000EE1  2  22 22 22 22  
+000EE5  2  72 72 72 44  .byte $72,$72,$72,$44,$44,$72,$72,$72
+000EE9  2  44 72 72 72  
+000EED  2  22 22 22 22  .byte $22,$22,$22,$22,$22,$22,$22,$22
+000EF1  2  22 22 22 22  
+000EF5  2  22 72 22 72  .byte $22,$72,$22,$72,$22,$72,$22,$72
+000EF9  2  22 72 22 72  
+000EFD  2  22 55 55 52  .byte $22,$55,$55,$52,$22,$22,$22,$22
+000F01  2  22 22 22 22  
+000F05  2  22 22 72 22  .byte $22,$22,$72,$22,$33,$22,$72,$22
+000F09  2  33 22 72 22  
+000F0D  2  22 22 22 22  .byte $22,$22,$22,$22,$22,$22,$22,$22
+000F11  2  22 22 22 22  
+000F15  2  55 22 22 22  .byte $55,$22,$22,$22,$22,$22,$25,$55
+000F19  2  22 22 25 55  
+000F1D  2  22 22 32 23  .byte $22,$22,$32,$23,$33,$32,$22,$22
+000F21  2  33 32 22 22  
+000F25  2  22 22 22 22  .byte $22,$22,$22,$22,$22,$22,$22,$22
+000F29  2  22 22 22 22  
+000F2D  2  22 22 22 22  .byte $22,$22,$22,$22,$22,$22,$22,$22
+000F31  2  22 22 22 22  
+000F35  2  55 95 55 32  .byte $55,$95,$55,$32,$22,$22,$22,$35
+000F39  2  22 22 22 35  
+000F3D  2  22 22 22 22  .byte $22,$22,$22,$22,$22,$22,$22,$22
+000F41  2  22 22 22 22  
+000F45  2  22 22 22 35  .byte $22,$22,$22,$35,$59,$95,$53,$22
+000F49  2  59 95 53 22  
+000F4D  2  22 22 22 22  .byte $22,$22,$22,$22,$22,$22,$22,$22
+000F51  2  22 22 22 22  
+000F55  2  23 33 22 33  .byte $23,$33,$22,$33,$32,$22,$22,$22
+000F59  2  32 22 22 22  
+000F5D  2  22 22 22 22  .byte $22,$22,$22,$22,$22,$23,$33,$22
+000F61  2  22 23 33 22  
+000F65  2  22 22 22 22  .byte $22,$22,$22,$22,$22,$22,$22,$22
+000F69  2  22 22 22 22  
+000F6D  2  55 59 95 55  .byte $55,$59,$95,$55,$32,$22,$22,$23
+000F71  2  32 22 22 23  
+000F75  2  22 22 22 22  .byte $22,$22,$22,$22,$23,$55,$85,$32
+000F79  2  23 55 85 32  
+000F7D  2  22 22 23 32  .byte $22,$22,$23,$32,$22,$22,$22,$22
+000F81  2  22 22 22 22  
+000F85  2  22 22 22 22  .byte $22,$22,$22,$22,$22,$22,$22,$22
+000F89  2  22 22 22 22  
+000F8D  2  55 55 32 22  .byte $55,$55,$32,$22,$23,$55,$58,$85
+000F91  2  23 55 58 85  
+000F95  2  22 22 23 33  .byte $22,$22,$23,$33,$32,$22,$22,$22
+000F99  2  32 22 22 22  
+000F9D  2  23 33 22 22  .byte $23,$33,$22,$22,$22,$22,$33,$32
+000FA1  2  22 22 33 32  
+000FA5  2  22 22 22 22  .byte $22,$22,$22,$22,$22,$22,$22,$22
+000FA9  2  22 22 22 22  
+000FAD  2  22 22 23 55  .byte $22,$22,$23,$55,$58,$85,$55,$32
+000FB1  2  58 85 55 32  
+000FB5  2  32 23 55 53  .byte $32,$23,$55,$53,$33,$33,$35,$53
+000FB9  2  33 33 35 53  
+000FBD  2  22 22 22 22  .byte $22,$22,$22,$22,$22,$22,$22,$22
+000FC1  2  22 22 22 22  
+000FC5  2  22 22 22 22  .byte $22,$22,$22,$22,$23,$38,$32,$22
+000FC9  2  23 38 32 22  
+000FCD  2  58 85 53 22  .byte $58,$85,$53,$22,$22,$22,$22,$23
+000FD1  2  22 22 22 23  
+000FD5  2  33 33 35 53  .byte $33,$33,$35,$53,$32,$23,$35,$55
+000FD9  2  32 23 35 55  
+000FDD  2  22 22 22 22  .byte $22,$22,$22,$22,$22,$22,$22,$22
+000FE1  2  22 22 22 22  
+000FE5  2  33 22 22 23  .byte $33,$22,$22,$23,$32,$38,$32,$23
+000FE9  2  32 38 32 23  
+000FED  2  22 23 83 22  .byte $22,$23,$83,$22,$22,$22,$22,$22
+000FF1  2  22 22 22 22  
+000FF5  2  32 22 22 22  .byte $32,$22,$22,$22,$23,$58,$88,$55
+000FF9  2  23 58 88 55  
+000FFD  2  53 22 33 22  .byte $53,$22,$33,$22,$35,$33,$33,$33
+001001  2  35 33 33 33  
+001005  2  22 22 22 22  .byte $22,$22,$22,$22,$22,$22,$22,$22
+001009  2  22 22 22 22  
+00100D  2  23 58 85 53  .byte $23,$58,$85,$53,$22,$22,$22,$22
+001011  2  22 22 22 22  
+001015  2  35 33 33 35  .byte $35,$33,$33,$35,$53,$32,$38,$23
+001019  2  53 32 38 23  
+00101D  2  22 22 22 22  .byte $22,$22,$22,$22,$22,$22,$22,$22
+001021  2  22 22 22 22  
+001025  2  22 23 32 22  .byte $22,$23,$32,$22,$23,$83,$22,$22
+001029  2  23 83 22 22  
+00102D  2  22 22 22 22  .byte $22,$22,$22,$22,$22,$22,$22,$22
+001031  2  22 22 22 22  
+001035  2  66 88 66 32  .byte $66,$88,$66,$32,$22,$22,$22,$36
+001039  2  22 22 22 36  
+00103D  2  22 22 22 66  .byte $22,$22,$22,$66,$33,$22,$33,$62
+001041  2  33 22 33 62  
+001045  2  22 22 22 22  .byte $22,$22,$22,$22,$22,$22,$22,$22
+001049  2  22 22 22 22  
+00104D  2  32 38 32 22  .byte $32,$38,$32,$22,$23,$83,$22,$33
+001051  2  23 83 22 33  
+001055  2  22 22 22 22  .byte $22,$22,$22,$22,$22,$22,$82,$22
+001059  2  22 22 82 22  
+00105D  2  66 33 22 22  .byte $66,$33,$22,$22,$33,$66,$88,$66
+001061  2  33 66 88 66  
+001065  2  33 66 33 33  .byte $33,$66,$33,$33,$66,$33,$33,$33
+001069  2  66 33 33 33  
+00106D  2  22 22 22 22  .byte $22,$22,$22,$22,$22,$22,$22,$22
+001071  2  22 22 22 22  
+001075  2  22 23 83 32  .byte $22,$23,$83,$32,$22,$23,$33,$33
+001079  2  22 23 33 33  
+00107D  2  22 22 22 22  .byte $22,$22,$22,$22,$22,$22,$22,$22
+001081  2  22 22 22 22  
+001085  2  22 22 22 23  .byte $22,$22,$22,$23,$33,$22,$22,$22
+001089  2  33 22 22 22  
+00108D  2  22 33 66 88  .byte $22,$33,$66,$88,$86,$66,$63,$22
+001091  2  86 66 63 22  
+001095  2  33 66 63 33  .byte $33,$66,$63,$33,$33,$36,$66,$33
+001099  2  33 36 66 33  
+00109D  2  22 22 22 22  .byte $22,$22,$22,$22,$22,$22,$22,$22
+0010A1  2  22 22 22 22  
+0010A5  2  22 22 22 23  .byte $22,$22,$22,$23,$33,$32,$22,$22
+0010A9  2  33 32 22 22  
+0010AD  2  22 22 22 22  .byte $22,$22,$22,$22,$22,$22,$22,$22
+0010B1  2  22 22 22 22  
+0010B5  2  86 32 22 22  .byte $86,$32,$22,$22,$22,$22,$23,$68
+0010B9  2  22 22 23 68  
+0010BD  2  66 66 63 32  .byte $66,$66,$63,$32,$23,$36,$66,$66
+0010C1  2  23 36 66 66  
+0010C5  2  33 33 66 63  .byte $33,$33,$66,$63,$33,$66,$33,$33
+0010C9  2  33 66 33 33  
+0010CD  2  22 22 22 22  .byte $22,$22,$22,$22,$22,$22,$22,$22
+0010D1  2  22 22 22 22  
+0010D5  2  22 22 22 33  .byte $22,$22,$22,$33,$83,$32,$22,$22
+0010D9  2  83 32 22 22  
+0010DD  2  32 23 82 22  .byte $32,$23,$82,$22,$22,$22,$22,$33
+0010E1  2  22 22 22 33  
+0010E5  2  22 22 22 22  .byte $22,$22,$22,$22,$22,$22,$22,$22
+0010E9  2  22 22 22 22  
+0010ED  2  22 22 36 68  .byte $22,$22,$36,$68,$88,$66,$63,$22
+0010F1  2  88 66 63 22  
+0010F5  2  32 36 66 33  .byte $32,$36,$66,$33,$33,$33,$66,$63
+0010F9  2  33 33 66 63  
+0010FD  2  22 22 22 22  .byte $22,$22,$22,$22,$22,$22,$22,$22
+001101  2  22 22 22 22  
+001105  2  22 22 22 22  .byte $22,$22,$22,$22,$22,$22,$22,$22
+001109  2  22 22 22 22  
+00110D  2  22 22 22 22  .byte $22,$22,$22,$22,$22,$22,$22,$22
+001111  2  22 22 22 22  
+001115  2  22 22 22 22  .byte $22,$22,$22,$22,$22,$22,$22,$22
+001119  2  22 22 22 22  
+00111D  2  22 22 22 22  .byte $22,$22,$22,$22,$22,$22,$22,$22
+001121  2  22 22 22 22  
+001125  2  22 22 22 22  .byte $22,$22,$22,$22,$22,$22,$22,$22
+001129  2  22 22 22 22  
+00112D  2               
+00112D  1               

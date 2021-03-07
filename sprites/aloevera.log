@@ -39,3 +39,97 @@
 20210305 15:07:32.092 INFO aloevera::cmd::asm::command - Resource wall_tiles has size 1792
 20210305 15:07:32.092 INFO aloevera - Command 'asm' completed successfully
 20210305 15:07:32.092 INFO aloevera - Finished
+20210307 16:23:19.945 INFO aloevera - This is Aloevera version 0.2.4, built for x86_64-unknown-linux-gnu by rustc 1.50.0 (cb75ad5db 2021-02-10).
+20210307 16:23:19.945 DEBUG aloevera - Built with profile "debug", features "".
+20210307 16:23:19.951 DEBUG aloevera_vera::palette - Palette load: Decoded PNG Info: Info { width: 16, height: 240, bit_depth: Eight, color_type: Indexed, interlaced: false, trns: None, pixel_dims: None, palette: Some([0, 0, 0, 34, 32, 52, 69, 40, 60, 102, 57, 49, 143, 86, 59, 223, 113, 38, 217, 160, 102, 238, 195, 154, 251, 242, 54, 153, 229, 80, 106, 190, 48, 55, 148, 110, 75, 105, 47, 82, 75, 36, 132, 126, 135, 105, 106, 106, 89, 86, 82, 118, 66, 138, 172, 50, 50, 217, 87, 99, 215, 123, 186, 143, 151, 74, 50, 60, 57, 138, 111, 48, 63, 63, 116, 48, 96, 130, 91, 110, 225, 99, 155, 255, 95, 205, 228, 203, 219, 252, 255, 255, 255, 155, 173, 183]), frame_control: None, animation_control: None, compression: Fast, filter: Sub }
+20210307 16:23:19.952 INFO aloevera_vera::palette - Creating new palette from image palette
+20210307 16:23:19.952 INFO aloevera_vera::palette - Palette creation successful
+20210307 16:23:19.952 INFO aloevera::cmd::palette::command - Inserting palette into project: parallax.av
+20210307 16:23:19.980 INFO aloevera - Command 'palette' completed successfully
+20210307 16:23:19.981 INFO aloevera - Finished
+20210307 16:24:10.519 INFO aloevera - This is Aloevera version 0.2.4, built for x86_64-unknown-linux-gnu by rustc 1.50.0 (cb75ad5db 2021-02-10).
+20210307 16:24:10.519 DEBUG aloevera - Built with profile "debug", features "".
+20210307 16:24:10.522 ERROR aloevera - Command failed: I/O error: No such file or directory (os error 2)
+20210307 16:24:10.522 INFO aloevera - Finished
+20210307 16:24:19.988 INFO aloevera - This is Aloevera version 0.2.4, built for x86_64-unknown-linux-gnu by rustc 1.50.0 (cb75ad5db 2021-02-10).
+20210307 16:24:19.988 DEBUG aloevera - Built with profile "debug", features "".
+20210307 16:24:19.988 DEBUG aloevera_vera::png_util - Decoded PNG Info: OutputInfo { width: 16, height: 240, color_type: RGB, bit_depth: Eight, line_size: 48 }
+20210307 16:24:19.997 INFO aloevera_vera::png_util - Parsing 15 frames
+20210307 16:24:20.000 DEBUG aloevera_vera::imageset - Hashes to indices map: {1488621349108874027: 7, 5696132866075278660: 2, 7128523096296374116: 1, 7477469652463875240: 13, 10544797186351510028: 4, 12962915510636449067: 0, 13472276787631409011: 8, 13579660514667250109: 6, 15347965473322702175: 5, 15435619962974486823: 11, 16584359569811027415: 9, 17201206462555232367: 10, 18087501816756408237: 3, 18305068251887199069: 12}
+20210307 16:24:20.002 DEBUG aloevera_vera::imageset - Imageset culled? - true
+20210307 16:24:20.002 INFO aloevera_vera::imageset - Image parsed successfully
+20210307 16:24:20.025 INFO aloevera - Command 'imageset' completed successfully
+20210307 16:24:20.025 INFO aloevera - Finished
+20210307 16:25:02.783 INFO aloevera - This is Aloevera version 0.2.4, built for x86_64-unknown-linux-gnu by rustc 1.50.0 (cb75ad5db 2021-02-10).
+20210307 16:25:02.783 DEBUG aloevera - Built with profile "debug", features "".
+20210307 16:25:02.800 INFO aloevera_vera::imageset - Formatting imageset tileset to palette at depth of 4bpp
+20210307 16:25:02.862 INFO aloevera - Command 'imageset' completed successfully
+20210307 16:25:02.862 INFO aloevera - Finished
+20210307 16:25:42.040 INFO aloevera - This is Aloevera version 0.2.4, built for x86_64-unknown-linux-gnu by rustc 1.50.0 (cb75ad5db 2021-02-10).
+20210307 16:25:42.041 DEBUG aloevera - Built with profile "debug", features "".
+20210307 16:25:42.041 ERROR aloevera - Command failed: I/O error: No such file or directory (os error 2)
+20210307 16:25:42.041 INFO aloevera - Finished
+20210307 16:25:52.933 INFO aloevera - This is Aloevera version 0.2.4, built for x86_64-unknown-linux-gnu by rustc 1.50.0 (cb75ad5db 2021-02-10).
+20210307 16:25:52.933 DEBUG aloevera - Built with profile "debug", features "".
+20210307 16:25:52.955 INFO aloevera::cmd::asm::command - Resource palette_1 has size 64
+20210307 16:25:52.955 INFO aloevera::cmd::asm::command - Resource pallet has size 64
+20210307 16:25:52.959 INFO aloevera::cmd::asm::command - Resource tileset has size 1792
+20210307 16:25:52.962 INFO aloevera::cmd::asm::command - Resource wall_tiles has size 1792
+20210307 16:25:52.962 INFO aloevera - Command 'asm' completed successfully
+20210307 16:25:52.963 INFO aloevera - Finished
+20210307 16:30:44.151 INFO aloevera - This is Aloevera version 0.2.4, built for x86_64-unknown-linux-gnu by rustc 1.50.0 (cb75ad5db 2021-02-10).
+20210307 16:30:44.151 DEBUG aloevera - Built with profile "debug", features "".
+20210307 16:30:44.151 DEBUG aloevera_vera::palette - Palette load: Decoded PNG Info: Info { width: 16, height: 240, bit_depth: Eight, color_type: Indexed, interlaced: false, trns: None, pixel_dims: None, palette: Some([0, 0, 0, 34, 32, 52, 69, 40, 60, 102, 57, 49, 143, 86, 59, 223, 113, 38, 217, 160, 102, 238, 195, 154, 251, 242, 54, 153, 229, 80, 106, 190, 48, 55, 148, 110, 75, 105, 47, 82, 75, 36, 50, 60, 57, 155, 173, 183, 132, 126, 135, 105, 106, 106, 89, 86, 82, 118, 66, 138, 172, 50, 50, 217, 87, 99, 215, 123, 186, 143, 151, 74, 138, 111, 48, 63, 63, 116, 48, 96, 130, 91, 110, 225, 99, 155, 255, 95, 205, 228, 203, 219, 252, 255, 255, 255]), frame_control: None, animation_control: None, compression: Fast, filter: Sub }
+20210307 16:30:44.151 INFO aloevera_vera::palette - Creating new palette from image palette
+20210307 16:30:44.152 INFO aloevera_vera::palette - Palette creation successful
+20210307 16:30:44.152 INFO aloevera::cmd::palette::command - Inserting palette into project: parallax.av
+20210307 16:30:44.182 INFO aloevera - Command 'palette' completed successfully
+20210307 16:30:44.182 INFO aloevera - Finished
+20210307 16:30:59.905 INFO aloevera - This is Aloevera version 0.2.4, built for x86_64-unknown-linux-gnu by rustc 1.50.0 (cb75ad5db 2021-02-10).
+20210307 16:30:59.905 DEBUG aloevera - Built with profile "debug", features "".
+20210307 16:30:59.906 DEBUG aloevera_vera::png_util - Decoded PNG Info: OutputInfo { width: 16, height: 240, color_type: RGB, bit_depth: Eight, line_size: 48 }
+20210307 16:30:59.912 INFO aloevera_vera::png_util - Parsing 15 frames
+20210307 16:30:59.916 DEBUG aloevera_vera::imageset - Hashes to indices map: {1488621349108874027: 7, 5696132866075278660: 2, 6529909862158241698: 9, 7128523096296374116: 1, 9565206400950573565: 13, 9941745884084398974: 12, 10544797186351510028: 4, 12962915510636449067: 0, 13472276787631409011: 8, 13579660514667250109: 6, 15347965473322702175: 5, 17383815212406074265: 11, 18087501816756408237: 3, 18292664187249975757: 10}
+20210307 16:30:59.918 DEBUG aloevera_vera::imageset - Imageset culled? - true
+20210307 16:30:59.918 INFO aloevera_vera::imageset - Image parsed successfully
+20210307 16:30:59.950 INFO aloevera - Command 'imageset' completed successfully
+20210307 16:30:59.950 INFO aloevera - Finished
+20210307 16:31:08.577 INFO aloevera - This is Aloevera version 0.2.4, built for x86_64-unknown-linux-gnu by rustc 1.50.0 (cb75ad5db 2021-02-10).
+20210307 16:31:08.577 DEBUG aloevera - Built with profile "debug", features "".
+20210307 16:31:08.596 INFO aloevera_vera::imageset - Formatting imageset tileset to palette at depth of 4bpp
+20210307 16:31:08.608 ERROR aloevera - Command failed: Vera module error: No range in palette found for frame tileset_8 suiting bit depth 4 (all palette entries must be within 15 indices of a multiple of 16)
+20210307 16:31:08.608 INFO aloevera - Finished
+20210307 16:36:50.905 INFO aloevera - This is Aloevera version 0.2.4, built for x86_64-unknown-linux-gnu by rustc 1.50.0 (cb75ad5db 2021-02-10).
+20210307 16:36:50.905 DEBUG aloevera - Built with profile "debug", features "".
+20210307 16:36:50.905 DEBUG aloevera_vera::palette - Palette load: Decoded PNG Info: Info { width: 16, height: 240, bit_depth: Eight, color_type: Indexed, interlaced: false, trns: None, pixel_dims: None, palette: Some([0, 0, 0, 138, 111, 48, 63, 63, 116, 48, 96, 130, 91, 110, 225, 99, 155, 255, 95, 205, 228, 50, 60, 57, 255, 255, 255, 203, 219, 252, 34, 32, 52, 69, 40, 60, 102, 57, 49, 143, 86, 59, 223, 113, 38, 217, 160, 102, 238, 195, 154, 251, 242, 54, 153, 229, 80, 106, 190, 48, 55, 148, 110, 75, 105, 47, 82, 75, 36, 155, 173, 183, 132, 126, 135, 105, 106, 106, 89, 86, 82, 118, 66, 138, 172, 50, 50, 217, 87, 99, 215, 123, 186, 143, 151, 74]), frame_control: None, animation_control: None, compression: Fast, filter: Sub }
+20210307 16:36:50.905 INFO aloevera_vera::palette - Creating new palette from image palette
+20210307 16:36:50.906 INFO aloevera_vera::palette - Palette creation successful
+20210307 16:36:50.906 INFO aloevera::cmd::palette::command - Inserting palette into project: parallax.av
+20210307 16:36:50.935 INFO aloevera - Command 'palette' completed successfully
+20210307 16:36:50.935 INFO aloevera - Finished
+20210307 16:36:56.477 INFO aloevera - This is Aloevera version 0.2.4, built for x86_64-unknown-linux-gnu by rustc 1.50.0 (cb75ad5db 2021-02-10).
+20210307 16:36:56.477 DEBUG aloevera - Built with profile "debug", features "".
+20210307 16:36:56.478 DEBUG aloevera_vera::png_util - Decoded PNG Info: OutputInfo { width: 16, height: 240, color_type: RGB, bit_depth: Eight, line_size: 48 }
+20210307 16:36:56.485 INFO aloevera_vera::png_util - Parsing 15 frames
+20210307 16:36:56.488 DEBUG aloevera_vera::imageset - Hashes to indices map: {1488621349108874027: 7, 5696132866075278660: 2, 6529909862158241698: 9, 7128523096296374116: 1, 9565206400950573565: 13, 9941745884084398974: 12, 10544797186351510028: 4, 12962915510636449067: 0, 13472276787631409011: 8, 13579660514667250109: 6, 15347965473322702175: 5, 17383815212406074265: 11, 18087501816756408237: 3, 18292664187249975757: 10}
+20210307 16:36:56.490 DEBUG aloevera_vera::imageset - Imageset culled? - true
+20210307 16:36:56.490 INFO aloevera_vera::imageset - Image parsed successfully
+20210307 16:36:56.521 INFO aloevera - Command 'imageset' completed successfully
+20210307 16:36:56.521 INFO aloevera - Finished
+20210307 16:37:00.233 INFO aloevera - This is Aloevera version 0.2.4, built for x86_64-unknown-linux-gnu by rustc 1.50.0 (cb75ad5db 2021-02-10).
+20210307 16:37:00.233 DEBUG aloevera - Built with profile "debug", features "".
+20210307 16:37:00.251 INFO aloevera_vera::imageset - Formatting imageset tileset to palette at depth of 4bpp
+20210307 16:37:00.310 INFO aloevera - Command 'imageset' completed successfully
+20210307 16:37:00.310 INFO aloevera - Finished
+20210307 16:37:13.960 INFO aloevera - This is Aloevera version 0.2.4, built for x86_64-unknown-linux-gnu by rustc 1.50.0 (cb75ad5db 2021-02-10).
+20210307 16:37:13.960 DEBUG aloevera - Built with profile "debug", features "".
+20210307 16:37:13.961 ERROR aloevera - Command failed: I/O error: No such file or directory (os error 2)
+20210307 16:37:13.961 INFO aloevera - Finished
+20210307 16:37:24.092 INFO aloevera - This is Aloevera version 0.2.4, built for x86_64-unknown-linux-gnu by rustc 1.50.0 (cb75ad5db 2021-02-10).
+20210307 16:37:24.093 DEBUG aloevera - Built with profile "debug", features "".
+20210307 16:37:24.112 INFO aloevera::cmd::asm::command - Resource palette_1 has size 64
+20210307 16:37:24.112 INFO aloevera::cmd::asm::command - Resource pallet has size 64
+20210307 16:37:24.115 INFO aloevera::cmd::asm::command - Resource tileset has size 1792
+20210307 16:37:24.118 INFO aloevera::cmd::asm::command - Resource wall_tiles has size 1792
+20210307 16:37:24.118 INFO aloevera - Command 'asm' completed successfully
+20210307 16:37:24.118 INFO aloevera - Finished

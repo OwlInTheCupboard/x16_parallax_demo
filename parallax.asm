@@ -12,7 +12,7 @@
 default_irq_vector: .addr 0
 VSYNC_BIT = $83 ;enable vsync, line IRQs and turning on the 8 bit of the line interupt
 increment: .byte 0
-scroll_ammount: .byte 4;this is the speed of the foreground.
+scroll_ammount: .byte 16;this is the speed of the foreground.
 TILESET_START = $F800
 display_scale = 64
 frame: .byte 0
@@ -24,10 +24,10 @@ parallax_blocks: ;these are all above 255 so just make sure ise bit is set
   .byte 128,144,160,176
   .byte 192,208
 increment_div:
-  .byte 255,128,64,32
-  .byte 16,8,4,3
-  .byte 2,1,1,1
-  .byte 1,1
+  .byte 56,48,40,34
+  .byte 28,22,18,14
+  .byte 10,8,6,5
+  .byte 4,4
 scroll: .byte 0,0,0,0 ,0,0,0,0 ,0,0,0,0 ,0,0
 scroll_counter: .byte 0,0,0,0 ,0,0,0,0 ,0,0,0,0 ,0,0
 
@@ -94,7 +94,6 @@ scroll_positions:
     ldx #0
     @increment_loop:
       lda increment_div,x
-      inc
       cmp scroll_counter,x
       bne @next
       inc scroll,x
@@ -197,7 +196,7 @@ fillbackground:
     @xloop:
       lda background_list,y
       sta VERA_data0
-      lda #$10
+      lda #0
       sta VERA_data0
       inx
       cpx #24
